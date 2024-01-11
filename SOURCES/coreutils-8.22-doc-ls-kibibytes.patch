@@ -1,0 +1,32 @@
+From c6418e3a5cb3a65af79117162a93a66026cc8c36 Mon Sep 17 00:00:00 2001
+From: Kamil Dudka <kdudka@redhat.com>
+Date: Thu, 6 Dec 2018 14:28:00 +0100
+Subject: [PATCH] doc: improve wording of the --kibibytes option description
+
+Bug: https://bugzilla.redhat.com/1527391
+---
+ doc/coreutils.texi | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/doc/coreutils.texi b/doc/coreutils.texi
+index 88d6506..772aab6 100644
+--- a/doc/coreutils.texi
++++ b/doc/coreutils.texi
+@@ -7615,9 +7615,11 @@ Append @samp{*} for executable regular files, otherwise behave as for
+ @opindex --kibibytes
+ Set the default block size to its normal value of 1024 bytes,
+ overriding any contrary specification in environment variables
+-(@pxref{Block size}).  This option is in turn overridden by the
+-@option{--block-size}, @option{-h} or @option{--human-readable}, and
+-@option{--si} options.
++(@pxref{Block size}).  If @option{--block-size}, @option{-h},
++@option{--human-readable}, or @option{--si} options are used,
++they take precedence over @option{-k} or @option{--kibibytes}
++even if @option{-k} or @option{--kibibytes} is placed after
++the other options.
+ 
+ The @option{-k} or @option{--kibibytes} option affects the
+ per-directory block count written by the @option{-l} and similar
+-- 
+2.17.2
+
