@@ -1,7 +1,7 @@
 Summary: A set of basic GNU tools commonly used in shell scripts
 Name:    coreutils
 Version: 8.32
-Release: 34%{?dist}
+Release: 35%{?dist}
 License: GPLv3+
 Url:     https://www.gnu.org/software/coreutils/
 Source0: https://ftp.gnu.org/gnu/%{name}/%{name}-%{version}.tar.xz
@@ -69,6 +69,9 @@ Patch18:  coreutils-9.0-autofs-no-mount.patch
 
 # basic support for checking NFSv4 ACLs (#2137866)
 Patch19:  coreutils-nfsv4-acls.patch
+
+# fix tail on kernels with 64k pagesize
+Patch20:  coreutils-8.32-tail-64kpages.patch
 
 # disable the test-lock gnulib test prone to deadlock
 Patch100: coreutils-8.26-test-lock.patch
@@ -324,6 +327,9 @@ rm -f $RPM_BUILD_ROOT%{_infodir}/dir
 %license COPYING
 
 %changelog
+* Mon Jan 29 2024 Lukáš Zaoral <lzaoral@redhat.com>
+- fix tail on kernels with 64k page sizes (RHEL-22866)
+
 * Mon Jan 02 2023 Kamil Dudka <kdudka@redhat.com> - 8.32-34
 - basic support for checking NFSv4 ACLs (#2137866)
 
