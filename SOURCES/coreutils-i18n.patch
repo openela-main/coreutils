@@ -412,7 +412,7 @@ index 8cd0d6b..d23edd5 100644
 +  if (istream == NULL)
 +    {
 +      error (0, errno, "%s", filename);
-+      return 1;
++      return false;
 +    }
 +
 +  /* Define how ISTREAM is being folded. */

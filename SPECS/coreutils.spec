@@ -1,7 +1,7 @@
 Summary: A set of basic GNU tools commonly used in shell scripts
 Name:    coreutils
 Version: 8.32
-Release: 35%{?dist}
+Release: 36%{?dist}
 License: GPLv3+
 Url:     https://www.gnu.org/software/coreutils/
 Source0: https://ftp.gnu.org/gnu/%{name}/%{name}-%{version}.tar.xz
@@ -216,11 +216,6 @@ autoreconf -fiv
 %build
 export CFLAGS="$RPM_OPT_FLAGS -fno-strict-aliasing -fpic"
 
-# disable -flto on ppc64le to make test-float pass (#1789115)
-%ifarch ppc64le
-CFLAGS="$CFLAGS -fno-lto"
-%endif
-
 # Upstream suggests to build with -Dlint for static analyzers:
 # https://lists.gnu.org/archive/html/coreutils/2018-06/msg00110.html
 # ... and even for production binary RPMs:
@@ -327,7 +322,11 @@ rm -f $RPM_BUILD_ROOT%{_infodir}/dir
 %license COPYING
 
 %changelog
-* Mon Jan 29 2024 Lukáš Zaoral <lzaoral@redhat.com>
+* Fri Aug 16 2024 Lukáš Zaoral <lzaoral@redhat.com> - 8.32-36
+- fix fold exit code for non-existent files (RHEL-54568)
+- enable LTO on ppc64le
+
+* Mon Jan 29 2024 Lukáš Zaoral <lzaoral@redhat.com> - 8.32-35
 - fix tail on kernels with 64k page sizes (RHEL-22866)
 
 * Mon Jan 02 2023 Kamil Dudka <kdudka@redhat.com> - 8.32-34
