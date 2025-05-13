@@ -1,0 +1,69 @@
+OpenSSL on s390x unconditionally opens /dev/z90crypt cryptographic device.
+This patch backports commits relaxing the fdlimit sort tests:
+
+* https://github.com/coreutils/coreutils/commit/5c9998fbab1911c8ccb7a7d0fb03e42ed310afe4
+* https://github.com/coreutils/coreutils/commit/9348edb6b650db58a501e4e26e5dbf8e8b13e84d
+
+diff --git a/tests/misc/sort-continue.sh b/tests/misc/sort-continue.sh
+index c273363954..5326bfece5 100755
+--- a/tests/misc/sort-continue.sh
++++ b/tests/misc/sort-continue.sh
+@@ -19,8 +19,14 @@
+ . "${srcdir=.}/tests/init.sh"; path_prepend_ ./src
+ print_ver_ sort
+ 
++# This script uses 'ulimit -n 7' to limit 'sort' to at most 7 open files:
++# stdin, stdout, stderr, two input and one output files when merging,
++# and an extra.  The extra is for old-fashioned platforms like Solaris 10
++# where opening a temp file also requires opening /dev/urandom to
++# calculate the temp file's name.
++
+ # Skip the test when running under valgrind.
+-( ulimit -n 6; sort 3<&- 4<&- 5<&- < /dev/null ) \
++( ulimit -n 7; sort 3<&- 4<&- 5<&- 6<&- < /dev/null ) \
+   || skip_ 'fd-limited sort failed; are you running under valgrind?'
+ 
+ for i in $(seq 31); do
+@@ -31,16 +37,16 @@ done
+ test_files=$(echo __test.*)
+ 
+ (
+- ulimit -n 6
+- sort -n -m $test_files 3<&- 4<&- 5<&- < /dev/null > out
++ ulimit -n 7
++ sort -n -m $test_files 3<&- 4<&- 5<&- 6<&- < /dev/null > out
+ ) &&
+ compare in out ||
+   { fail=1; echo 'file descriptor exhaustion not handled' 1>&2; }
+ 
+ echo 32 | tee -a in > in1
+ (
+- ulimit -n 6
+- sort -n -m $test_files - 3<&- 4<&- 5<&- < in1 > out
++ ulimit -n 7
++ sort -n -m $test_files - 3<&- 4<&- 5<&- 6<&- < in1 > out
+ ) &&
+ compare in out || { fail=1; echo 'stdin not handled properly' 1>&2; }
+ 
+diff --git a/tests/misc/sort-merge-fdlimit.sh b/tests/misc/sort-merge-fdlimit.sh
+index db2d8ebf09..7dda7f8f5e 100755
+--- a/tests/misc/sort-merge-fdlimit.sh
++++ b/tests/misc/sort-merge-fdlimit.sh
+@@ -61,9 +61,16 @@ done
+ # This test finds the bug only with shells that do not close FDs on
+ # exec, and will miss the bug (if present) on other shells, but it's
+ # not easy to fix this without running afoul of the OpenBSD-like sh bugs.
++#
++# This script uses 'ulimit -n 10' with 7, 8 and 9 open
++# to limit 'sort' to at most 7 open files:
++# stdin, stdout, stderr, two input and one output files when merging,
++# and an extra.  The extra is for old-fashioned platforms like Solaris 10
++# where opening a temp file also requires opening /dev/urandom to
++# calculate the temp file's name.
+ (seq 6 && echo 6) >exp || framework_failure_
+ echo 6 >out || framework_failure_
+-(exec 3<&- 4<&- 5<&- 6</dev/null 7<&6 8<&6 9<&6 &&
++(exec 3<&- 4<&- 5<&- 6<&- 7</dev/null 8<&7 9<&7 &&
+  ulimit -n 10 &&
+  sort -n -m --batch-size=7 -o out out in/1 in/2 in/3 in/4 in/5 out
+ ) &&

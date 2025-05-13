@@ -1,7 +1,7 @@
 Summary: A set of basic GNU tools commonly used in shell scripts
 Name:    coreutils
 Version: 8.32
-Release: 36%{?dist}
+Release: 39%{?dist}
 License: GPLv3+
 Url:     https://www.gnu.org/software/coreutils/
 Source0: https://ftp.gnu.org/gnu/%{name}/%{name}-%{version}.tar.xz
@@ -72,6 +72,17 @@ Patch19:  coreutils-nfsv4-acls.patch
 
 # fix tail on kernels with 64k pagesize
 Patch20:  coreutils-8.32-tail-64kpages.patch
+
+# fix extended upstream test suite failures (RHEL-60290)
+Patch21:  coreutils-8.32-fix-extended-testsuite.patch
+
+# Fix affinity mask handling in nproc for large CPU counts (RHEL-54139)
+# https://bugzilla.redhat.com/show_bug.cgi?id=2325167
+Patch22: coreutils-nproc-affinity-1.patch
+Patch23: coreutils-nproc-affinity-2.patch
+
+# fix sort fdlimit test failures on s390x with /dev/z90crypt (RHEL-60290)
+Patch24: coreutils-8.32-s390x-fdlimit.patch
 
 # disable the test-lock gnulib test prone to deadlock
 Patch100: coreutils-8.26-test-lock.patch
@@ -322,6 +333,15 @@ rm -f $RPM_BUILD_ROOT%{_infodir}/dir
 %license COPYING
 
 %changelog
+* Mon Dec 09 2024 Lukáš Zaoral <lzaoral@redhat.com> - 8.32-39
+- fix sort fdlimit test failures on s390x with /dev/z90crypt (RHEL-60290)
+
+* Tue Nov 26 2024 Lukáš Zaoral <lzaoral@redhat.com> - 8.32-38
+- fix affinity mask handling in nproc for large CPU counts (RHEL-54139)
+
+* Tue Oct 22 2024 Lukáš Zaoral <lzaoral@redhat.com> - 8.32-37
+- fix extended upstream test suite failures (RHEL-60290)
+
 * Fri Aug 16 2024 Lukáš Zaoral <lzaoral@redhat.com> - 8.32-36
 - fix fold exit code for non-existent files (RHEL-54568)
 - enable LTO on ppc64le

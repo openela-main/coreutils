@@ -1,0 +1,63 @@
+Fix failures in extended testsuite runs
+
+Cherry-picked from upstream commits:
+* https://github.com/coreutils/coreutils/commit/c431893b96bf4dc3b3918a605387f1b0e3843242
+* https://github.com/coreutils/coreutils/commit/c0e5f8c59b951ae13ca9cb9945cd77163489e1d9
+
+diff --git a/tests/rmdir/ignore.sh b/tests/rmdir/ignore.sh
+index 65e92d012..b26ac533a 100755
+--- a/tests/rmdir/ignore.sh
++++ b/tests/rmdir/ignore.sh
+@@ -33,17 +33,24 @@ test -d "$cwd/a/b/c" && fail=1
+ # Between 6.11 and 8.31, the following rmdir would mistakenly succeed.
+ mkdir -p x/y || framework_failure_
+ chmod a-w x || framework_failure_
+-returns_ 1 rmdir --ignore-fail-on-non-empty x/y || fail=1
++
++if ! uid_is_privileged_; then  # root does not get EPERM.
++  returns_ 1 rmdir --ignore-fail-on-non-empty x/y || fail=1
++fi
++
+ test -d x/y || fail=1
+ # Between 6.11 and 8.31, the following rmdir would mistakenly fail,
+ # and also give a non descript error
+ touch x/y/z || framework_failure_
+ rmdir --ignore-fail-on-non-empty x/y || fail=1
+ test -d x/y || fail=1
+-# assume empty dir if unreadable entries (so failure to remove diagnosed)
+-rm x/y/z || framework_failure_
+-chmod a-r x/y || framework_failure_
+-returns_ 1 rmdir --ignore-fail-on-non-empty x/y || fail=1
+-test -d x/y || fail=1
++
++if ! uid_is_privileged_; then  # root does not get EPERM.
++  # assume empty dir if unreadable entries (so failure to remove diagnosed)
++  rm x/y/z || framework_failure_
++  chmod a-r x/y || framework_failure_
++  returns_ 1 rmdir --ignore-fail-on-non-empty x/y || fail=1
++  test -d x/y || fail=1
++fi
+ 
+ Exit $fail
+diff --git a/tests/cp/fiemap-2.sh b/tests/cp/fiemap-2.sh
+index e75d232e3..da7503074 100755
+--- a/tests/cp/fiemap-2.sh
++++ b/tests/cp/fiemap-2.sh
+@@ -32,7 +32,7 @@ dd bs=1k seek=128 of=k < /dev/null || framework_failure_
+ for append in no yes; do
+   test $append = yes && printf y >> k
+   for i in always never; do
+-    cp --sparse=$i k k2 || fail=1
++    cp --reflink=never --sparse=$i k k2 || fail=1
+     cmp k k2 || fail=1
+   done
+ done
+@@ -48,7 +48,7 @@ dd bs=1k seek=1 of=k count=255 < /dev/zero || framework_failure_
+ # Currently, on my F14/ext4 desktop, this K file starts off with size 256KiB,
+ # (note that the K in the preceding test starts off with size 4KiB).
+ # cp from coreutils-8.9 with --sparse=always reduces the size to 32KiB.
+-cp --sparse=always k k2 || fail=1
++cp --reflink=never --sparse=always k k2 || fail=1
+ if test $(stat -c %b k2) -ge $(stat -c %b k); then
+   # If not sparse, then double check by creating with dd
+   # as we're not guaranteed that seek will create a hole.
