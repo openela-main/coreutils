@@ -1,0 +1,28 @@
+From 6eb93a992f32d5e8973a195ba167ca7beee02ca5 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Luk=C3=A1=C5=A1=20Zaoral?= <lzaoral@redhat.com>
+Date: Wed, 2 Oct 2024 17:45:26 +0200
+Subject: [PATCH] doc: ls: fix regression in -k description
+
+The description of -k regressed in coreutils 9.0
+
+* doc/coreutils.texi (ls invocation): Fix incomplete paragraph
+describing -k introduced by a mistake in commit v8.32-180-g1625916a1.
+---
+ doc/coreutils.texi | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/doc/coreutils.texi b/doc/coreutils.texi
+index 03dfd0011..d5dd55092 100644
+--- a/doc/coreutils.texi
++++ b/doc/coreutils.texi
+@@ -8441,6 +8441,7 @@ overriding any contrary specification in environment variables
+ (@pxref{Block size}).  If @option{--block-size},
+ @option{--human-readable} (@option{-h}), or @option{--si} options are used,
+ they take precedence even if @option{--kibibytes} (@option{-k}) is placed after
++the other options.
+ 
+ The @option{--kibibytes} (@option{-k}) option affects the
+ per-directory block count written in long format,
+-- 
+2.46.2
+
