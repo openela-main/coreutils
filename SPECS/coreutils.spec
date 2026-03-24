@@ -1,7 +1,7 @@
 Summary: A set of basic GNU tools commonly used in shell scripts
 Name:    coreutils
 Version: 8.30
-Release: 16%{?dist}
+Release: 17%{?dist}
 License: GPLv3+
 Group:   System Environment/Base
 Url:     https://www.gnu.org/software/coreutils/
@@ -296,6 +296,9 @@ fi
 %license COPYING
 
 %changelog
+* Mon Jan 26 2026 Lukáš Zaoral <lzaoral@redhat.com> - 8.30-17
+- fold: fix processing of malformed UTF-8 sequences (RHEL-140117)
+
 * Wed Oct 29 2025 Lukáš Zaoral <lzaoral@redhat.com> - 8.30-16
 - fix du being killed by SIGABRT on mutating xfs systems (RHEL-124174)
 
