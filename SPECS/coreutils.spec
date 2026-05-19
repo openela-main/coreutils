@@ -1,7 +1,7 @@
 Summary: A set of basic GNU tools commonly used in shell scripts
 Name:    coreutils
 Version: 8.32
-Release: 39%{?dist}
+Release: 40%{?dist}
 License: GPLv3+
 Url:     https://www.gnu.org/software/coreutils/
 Source0: https://ftp.gnu.org/gnu/%{name}/%{name}-%{version}.tar.xz
@@ -333,6 +333,9 @@ rm -f $RPM_BUILD_ROOT%{_infodir}/dir
 %license COPYING
 
 %changelog
+* Thu Jan 15 2026 Lukáš Zaoral <lzaoral@redhat.com> - 8.32-40
+- fold: fix processing of malformed UTF-8 sequences (RHEL-136086)
+
 * Mon Dec 09 2024 Lukáš Zaoral <lzaoral@redhat.com> - 8.32-39
 - fix sort fdlimit test failures on s390x with /dev/z90crypt (RHEL-60290)
 

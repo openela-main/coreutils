@@ -203,7 +203,7 @@ index 8cd0d6b..d23edd5 100644
                /* Look for the last blank. */
                while (logical_end)
                  {
-@@ -215,11 +252,221 @@ fold_file (char const *filename, size_t width)
+@@ -215,11 +252,222 @@ fold_file (char const *filename, size_t width)
        line_out[offset_out++] = c;
      }
  
@@ -282,6 +282,7 @@ index 8cd0d6b..d23edd5 100644
 +
 +      /* Get a wide character. */
 +      state_bak = state;
++      convfail = 0;
 +      mblength = mbrtowc ((wchar_t *)&wc, bufpos, buflen, &state);
 +
 +      switch (mblength)
