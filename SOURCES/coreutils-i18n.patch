@@ -2933,7 +2933,7 @@ index 568944e..192f776 100644
 --- a/tests/local.mk
 +++ b/tests/local.mk
 @@ -369,6 +369,8 @@ all_tests =					\
-   tests/misc/sort-discrim.sh			\
+   tests/sort/sort-field-limit.sh		\
    tests/misc/sort-files0-from.pl		\
    tests/misc/sort-float.sh			\
 +  tests/misc/sort-mb-tests.sh			\

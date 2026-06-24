@@ -1,7 +1,7 @@
 Summary: A set of basic GNU tools commonly used in shell scripts
 Name:    coreutils
 Version: 8.32
-Release: 40%{?dist}
+Release: 41%{?dist}
 License: GPLv3+
 Url:     https://www.gnu.org/software/coreutils/
 Source0: https://ftp.gnu.org/gnu/%{name}/%{name}-%{version}.tar.xz
@@ -83,6 +83,10 @@ Patch23: coreutils-nproc-affinity-2.patch
 
 # fix sort fdlimit test failures on s390x with /dev/z90crypt (RHEL-60290)
 Patch24: coreutils-8.32-s390x-fdlimit.patch
+
+# CVE-2025-5278 - Heap Buffer Under-Read in sort via Key Specification
+# upstream commit: https://cgit.git.savannah.gnu.org/cgit/coreutils.git/commit/?id=8c9602e3a145e9596dc1a63c6ed67865814b6633
+Patch25: coreutils-CVE-2025-5278.patch
 
 # disable the test-lock gnulib test prone to deadlock
 Patch100: coreutils-8.26-test-lock.patch
@@ -333,6 +337,9 @@ rm -f $RPM_BUILD_ROOT%{_infodir}/dir
 %license COPYING
 
 %changelog
+* Mon Jun 01 2026 Lukáš Zaoral <lzaoral@redhat.com> - 9.5-8
+- CVE-2025-5278 - Fix Heap Buffer Under-Read in sort via Key Specification (RHEL-180331)
+
 * Thu Jan 15 2026 Lukáš Zaoral <lzaoral@redhat.com> - 8.32-40
 - fold: fix processing of malformed UTF-8 sequences (RHEL-136086)
 
