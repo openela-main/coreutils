@@ -17,7 +17,7 @@ Subject: [PATCH] coreutils-i18n.patch
  src/expand-common.c         | 114 ++++++
  src/expand-common.h         |  12 +
  src/expand.c                |  90 +++-
- src/fold.c                  | 311 ++++++++++++--
+ src/fold.c                  | 312 ++++++++++++--
  src/local.mk                |   4 +-
  src/pr.c                    | 443 ++++++++++++++++++--
  src/sort.c                  | 792 +++++++++++++++++++++++++++++++++---
@@ -34,7 +34,7 @@ Subject: [PATCH] coreutils-i18n.patch
  tests/sort/sort-merge.pl    |  42 ++
  tests/sort/sort.pl          |  40 +-
  tests/unexpand/mb.sh        | 172 ++++++++
- 30 files changed, 3604 insertions(+), 196 deletions(-)
+ 30 files changed, 3605 insertions(+), 196 deletions(-)
  create mode 100644 lib/mbchar.c
  create mode 100644 lib/mbchar.h
  create mode 100644 lib/mbfile.c
@@ -47,7 +47,7 @@ Subject: [PATCH] coreutils-i18n.patch
  create mode 100644 tests/unexpand/mb.sh
 
 diff --git a/bootstrap.conf b/bootstrap.conf
-index 126e1e8..b4ccebf 100644
+index 126e1e80..b4ccebf2 100644
 --- a/bootstrap.conf
 +++ b/bootstrap.conf
 @@ -163,6 +163,8 @@ gnulib_modules="
@@ -60,7 +60,7 @@ index 126e1e8..b4ccebf 100644
    mbrtoc32
    mbrtowc
 diff --git a/configure.ac b/configure.ac
-index 9cb6ee1..1131ce3 100644
+index 9cb6ee14..1131ce35 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -504,6 +504,12 @@ fi
@@ -77,7 +77,7 @@ index 9cb6ee1..1131ce3 100644
  
  if test $gl_cv_sys_tiocgwinsz_needs_termios_h = no && \
 diff --git a/lib/linebuffer.h b/lib/linebuffer.h
-index ae0d55d..5bf5350 100644
+index ae0d55dd..5bf53503 100644
 --- a/lib/linebuffer.h
 +++ b/lib/linebuffer.h
 @@ -22,6 +22,11 @@
@@ -104,7 +104,7 @@ index ae0d55d..5bf5350 100644
  /* Initialize linebuffer LINEBUFFER for use. */
 diff --git a/lib/mbchar.c b/lib/mbchar.c
 new file mode 100644
-index 0000000..d94b7c3
+index 00000000..d94b7c33
 --- /dev/null
 +++ b/lib/mbchar.c
 @@ -0,0 +1,23 @@
@@ -133,7 +133,7 @@ index 0000000..d94b7c3
 +#include "mbchar.h"
 diff --git a/lib/mbchar.h b/lib/mbchar.h
 new file mode 100644
-index 0000000..c06ef11
+index 00000000..c06ef11b
 --- /dev/null
 +++ b/lib/mbchar.h
 @@ -0,0 +1,373 @@
@@ -512,7 +512,7 @@ index 0000000..c06ef11
 +#endif /* _MBCHAR_H */
 diff --git a/lib/mbfile.c b/lib/mbfile.c
 new file mode 100644
-index 0000000..8d2957b
+index 00000000..8d2957b5
 --- /dev/null
 +++ b/lib/mbfile.c
 @@ -0,0 +1,20 @@
@@ -538,7 +538,7 @@ index 0000000..8d2957b
 +#include "mbfile.h"
 diff --git a/lib/mbfile.h b/lib/mbfile.h
 new file mode 100644
-index 0000000..ad61c19
+index 00000000..ad61c193
 --- /dev/null
 +++ b/lib/mbfile.h
 @@ -0,0 +1,267 @@
@@ -811,7 +811,7 @@ index 0000000..ad61c19
 +#endif /* _MBFILE_H */
 diff --git a/m4/mbchar.m4 b/m4/mbchar.m4
 new file mode 100644
-index 0000000..471e8c4
+index 00000000..471e8c45
 --- /dev/null
 +++ b/m4/mbchar.m4
 @@ -0,0 +1,13 @@
@@ -830,7 +830,7 @@ index 0000000..471e8c4
 +])
 diff --git a/m4/mbfile.m4 b/m4/mbfile.m4
 new file mode 100644
-index 0000000..83068a9
+index 00000000..83068a99
 --- /dev/null
 +++ b/m4/mbfile.m4
 @@ -0,0 +1,14 @@
@@ -849,7 +849,7 @@ index 0000000..83068a9
 +  :
 +])
 diff --git a/src/cut.c b/src/cut.c
-index 061e09c..6d10425 100644
+index 061e09c3..6d104259 100644
 --- a/src/cut.c
 +++ b/src/cut.c
 @@ -27,6 +27,11 @@
@@ -1509,7 +1509,7 @@ index 061e09c..6d10425 100644
  
    if (have_read_stdin && fclose (stdin) == EOF)
 diff --git a/src/expand-common.c b/src/expand-common.c
-index c95998d..d4386fe 100644
+index c95998dc..d4386fec 100644
 --- a/src/expand-common.c
 +++ b/src/expand-common.c
 @@ -19,6 +19,7 @@
@@ -1641,7 +1641,7 @@ index c95998d..d4386fe 100644
     to the list of tab stops.  */
  extern void
 diff --git a/src/expand-common.h b/src/expand-common.h
-index 1a57108..6025652 100644
+index 1a57108e..60256522 100644
 --- a/src/expand-common.h
 +++ b/src/expand-common.h
 @@ -25,6 +25,18 @@ extern size_t max_column_width;
@@ -1664,7 +1664,7 @@ index 1a57108..6025652 100644
  extern void
  add_tab_stop (uintmax_t tabval);
 diff --git a/src/expand.c b/src/expand.c
-index a6176a9..60b1b8e 100644
+index a6176a97..60b1b8ee 100644
 --- a/src/expand.c
 +++ b/src/expand.c
 @@ -38,6 +38,9 @@
@@ -1820,7 +1820,7 @@ index a6176a9..60b1b8e 100644
  }
  
 diff --git a/src/fold.c b/src/fold.c
-index 941ad11..bdc466d 100644
+index 941ad11c..2b119815 100644
 --- a/src/fold.c
 +++ b/src/fold.c
 @@ -23,10 +23,32 @@
@@ -2196,7 +2196,7 @@ index 941ad11..bdc466d 100644
    if (STREQ (filename, "-"))
      clearerr (istream);
    else if (fclose (istream) != 0 && !saved_errno)
-@@ -251,7 +499,8 @@ main (int argc, char **argv)
+@@ -251,7 +500,8 @@ main (int argc, char **argv)
  
    atexit (close_stdout);
  
@@ -2206,7 +2206,7 @@ index 941ad11..bdc466d 100644
  
    while ((optc = getopt_long (argc, argv, shortopts, longopts, nullptr)) != -1)
      {
-@@ -260,7 +509,15 @@ main (int argc, char **argv)
+@@ -260,7 +510,15 @@ main (int argc, char **argv)
        switch (optc)
          {
          case 'b':		/* Count bytes rather than columns. */
@@ -2224,7 +2224,7 @@ index 941ad11..bdc466d 100644
  
          case 's':		/* Break at word boundaries. */
 diff --git a/src/local.mk b/src/local.mk
-index 96ee941..8fdb8fc 100644
+index 96ee941c..8fdb8fc3 100644
 --- a/src/local.mk
 +++ b/src/local.mk
 @@ -450,8 +450,8 @@ src_base32_CPPFLAGS = -DBASE_TYPE=32 $(AM_CPPFLAGS)
@@ -2239,7 +2239,7 @@ index 96ee941..8fdb8fc 100644
  src_wc_SOURCES = src/wc.c
  if USE_AVX2_WC_LINECOUNT
 diff --git a/src/pr.c b/src/pr.c
-index 09c6fa8..7552b62 100644
+index 09c6fa8a..7552b629 100644
 --- a/src/pr.c
 +++ b/src/pr.c
 @@ -312,6 +312,24 @@
@@ -3010,7 +3010,7 @@ index 09c6fa8..7552b62 100644
     looking for more options and printing the next batch of files.
  
 diff --git a/src/sort.c b/src/sort.c
-index 2d8324c..46331b8 100644
+index 09634197..dea94575 100644
 --- a/src/sort.c
 +++ b/src/sort.c
 @@ -29,6 +29,14 @@
@@ -3267,7 +3267,7 @@ index 2d8324c..46331b8 100644
            ++ptr;
          if (ptr < lim)
            ++ptr;
-@@ -1649,12 +1798,71 @@ begfield (struct line const *line, struct keyfield const *key)
+@@ -1653,12 +1802,71 @@ begfield (struct line const *line, struct keyfield const *key)
    return ptr;
  }
  
@@ -3340,7 +3340,7 @@ index 2d8324c..46331b8 100644
  {
    char *ptr = line->text, *lim = ptr + line->length - 1;
    size_t eword = key->eword, echar = key->echar;
-@@ -1669,10 +1877,10 @@ limfield (struct line const *line, struct keyfield const *key)
+@@ -1673,10 +1881,10 @@ limfield (struct line const *line, struct keyfield const *key)
       'beginning' is the first character following the delimiting TAB.
       Otherwise, leave PTR pointing at the first 'blank' character after
       the preceding field.  */
@@ -3353,7 +3353,7 @@ index 2d8324c..46331b8 100644
            ++ptr;
          if (ptr < lim && (eword || echar))
            ++ptr;
-@@ -1718,10 +1926,10 @@ limfield (struct line const *line, struct keyfield const *key)
+@@ -1722,10 +1930,10 @@ limfield (struct line const *line, struct keyfield const *key)
       */
  
    /* Make LIM point to the end of (one byte past) the current field.  */
@@ -3366,7 +3366,7 @@ index 2d8324c..46331b8 100644
        if (newlim)
          lim = newlim;
      }
-@@ -1752,6 +1960,130 @@ limfield (struct line const *line, struct keyfield const *key)
+@@ -1760,6 +1968,130 @@ limfield (struct line const *line, struct keyfield const *key)
    return ptr;
  }
  
@@ -3497,7 +3497,7 @@ index 2d8324c..46331b8 100644
  /* Fill BUF reading from FP, moving buf->left bytes from the end
     of buf->buf to the beginning first.  If EOF is reached and the
     file wasn't terminated by a newline, supply one.  Set up BUF's line
-@@ -1838,8 +2170,22 @@ fillbuf (struct buffer *buf, FILE *fp, char const *file)
+@@ -1846,8 +2178,22 @@ fillbuf (struct buffer *buf, FILE *fp, char const *file)
                    else
                      {
                        if (key->skipsblanks)
@@ -3522,7 +3522,7 @@ index 2d8324c..46331b8 100644
                        line->keybeg = line_start;
                      }
                  }
-@@ -1977,12 +2323,10 @@ find_unit_order (char const *number)
+@@ -1985,12 +2331,10 @@ find_unit_order (char const *number)
  
  ATTRIBUTE_PURE
  static int
@@ -3538,7 +3538,7 @@ index 2d8324c..46331b8 100644
  
    int diff = find_unit_order (a) - find_unit_order (b);
    return (diff ? diff : strnumcmp (a, b, decimal_point, thousands_sep));
-@@ -1994,7 +2338,7 @@ human_numcompare (char const *a, char const *b)
+@@ -2002,7 +2346,7 @@ human_numcompare (char const *a, char const *b)
  
  ATTRIBUTE_PURE
  static int
@@ -3547,7 +3547,7 @@ index 2d8324c..46331b8 100644
  {
    while (blanks[to_uchar (*a)])
      a++;
-@@ -2004,6 +2348,25 @@ numcompare (char const *a, char const *b)
+@@ -2012,6 +2356,25 @@ numcompare (char const *a, char const *b)
    return strnumcmp (a, b, decimal_point, thousands_sep);
  }
  
@@ -3573,7 +3573,7 @@ index 2d8324c..46331b8 100644
  static int
  nan_compare (long double a, long double b)
  {
-@@ -2045,7 +2408,7 @@ general_numcompare (char const *sa, char const *sb)
+@@ -2053,7 +2416,7 @@ general_numcompare (char const *sa, char const *sb)
     Return 0 if the name in S is not recognized.  */
  
  static int
@@ -3582,7 +3582,7 @@ index 2d8324c..46331b8 100644
  {
    size_t lo = 0;
    size_t hi = MONTHS_PER_YEAR;
-@@ -2372,15 +2735,14 @@ debug_key (struct line const *line, struct keyfield const *key)
+@@ -2380,15 +2743,14 @@ debug_key (struct line const *line, struct keyfield const *key)
            char saved = *lim;
            *lim = '\0';
  
@@ -3600,7 +3600,7 @@ index 2d8324c..46331b8 100644
            else if (key->general_numeric)
              ignore_value (strtold (beg, &tighter_lim));
            else if (key->numeric || key->human_numeric)
-@@ -2526,7 +2888,7 @@ key_warnings (struct keyfield const *gkey, bool gkey_only)
+@@ -2534,7 +2896,7 @@ key_warnings (struct keyfield const *gkey, bool gkey_only)
        /* Warn about significant leading blanks.  */
        bool implicit_skip = key_numeric (key) || key->month;
        bool line_offset = key->eword == 0 && key->echar != 0; /* -k1.x,1.y  */
@@ -3609,7 +3609,7 @@ index 2d8324c..46331b8 100644
            && ((!key->skipsblanks && !implicit_skip)
                || (!key->skipsblanks && key->schar)
                || (!key->skipeblanks && key->echar)))
-@@ -2574,9 +2936,9 @@ key_warnings (struct keyfield const *gkey, bool gkey_only)
+@@ -2582,9 +2944,9 @@ key_warnings (struct keyfield const *gkey, bool gkey_only)
    bool number_locale_warned = false;
    if (basic_numeric_field_span)
      {
@@ -3622,7 +3622,7 @@ index 2d8324c..46331b8 100644
          {
            error (0, 0,
                   _("field separator %s is treated as a "
-@@ -2587,9 +2949,9 @@ key_warnings (struct keyfield const *gkey, bool gkey_only)
+@@ -2595,9 +2957,9 @@ key_warnings (struct keyfield const *gkey, bool gkey_only)
      }
    if (basic_numeric_field_span || general_numeric_field_span)
      {
@@ -3635,7 +3635,7 @@ index 2d8324c..46331b8 100644
          {
            error (0, 0,
                   _("field separator %s is treated as a "
-@@ -2597,19 +2959,19 @@ key_warnings (struct keyfield const *gkey, bool gkey_only)
+@@ -2605,19 +2967,19 @@ key_warnings (struct keyfield const *gkey, bool gkey_only)
                   quote (((char []) {decimal_point, 0})));
            number_locale_warned = true;
          }
@@ -3659,7 +3659,7 @@ index 2d8324c..46331b8 100644
          }
      }
  
-@@ -2620,7 +2982,7 @@ key_warnings (struct keyfield const *gkey, bool gkey_only)
+@@ -2628,7 +2990,7 @@ key_warnings (struct keyfield const *gkey, bool gkey_only)
      {
        error (0, 0,
               _("%snumbers use %s as a decimal point in this locale"),
@@ -3668,7 +3668,7 @@ index 2d8324c..46331b8 100644
               quote (((char []) {decimal_point, 0})));
  
      }
-@@ -2662,11 +3024,87 @@ diff_reversed (int diff, bool reversed)
+@@ -2670,11 +3032,87 @@ diff_reversed (int diff, bool reversed)
    return reversed ? (diff < 0) - (diff > 0) : diff;
  }
  
@@ -3757,7 +3757,7 @@ index 2d8324c..46331b8 100644
  {
    struct keyfield *key = keylist;
  
-@@ -2747,7 +3185,7 @@ keycompare (struct line const *a, struct line const *b)
+@@ -2755,7 +3193,7 @@ keycompare (struct line const *a, struct line const *b)
            else if (key->human_numeric)
              diff = human_numcompare (ta, tb);
            else if (key->month)
@@ -3766,7 +3766,7 @@ index 2d8324c..46331b8 100644
            else if (key->random)
              diff = compare_random (ta, tlena, tb, tlenb);
            else if (key->version)
-@@ -2857,6 +3295,211 @@ keycompare (struct line const *a, struct line const *b)
+@@ -2865,6 +3303,211 @@ keycompare (struct line const *a, struct line const *b)
    return diff_reversed (diff, key->reverse);
  }
  
@@ -3978,7 +3978,7 @@ index 2d8324c..46331b8 100644
  /* Compare two lines A and B, returning negative, zero, or positive
     depending on whether A compares less than, equal to, or greater than B. */
  
-@@ -2884,7 +3527,7 @@ compare (struct line const *a, struct line const *b)
+@@ -2892,7 +3535,7 @@ compare (struct line const *a, struct line const *b)
      diff = - NONZERO (blen);
    else if (blen == 0)
      diff = 1;
@@ -3987,7 +3987,7 @@ index 2d8324c..46331b8 100644
      {
        /* xmemcoll0 is a performance enhancement as
           it will not unconditionally write '\0' after the
-@@ -4272,6 +4915,7 @@ set_ordering (char const *s, struct keyfield *key, enum blanktype blanktype)
+@@ -4280,6 +4923,7 @@ set_ordering (char const *s, struct keyfield *key, enum blanktype blanktype)
            break;
          case 'f':
            key->translate = fold_toupper;
@@ -3995,7 +3995,7 @@ index 2d8324c..46331b8 100644
            break;
          case 'g':
            key->general_numeric = true;
-@@ -4351,7 +4995,7 @@ main (int argc, char **argv)
+@@ -4359,7 +5003,7 @@ main (int argc, char **argv)
    initialize_exit_failure (SORT_FAILURE);
  
    hard_LC_COLLATE = hard_locale (LC_COLLATE);
@@ -4004,7 +4004,7 @@ index 2d8324c..46331b8 100644
    hard_LC_TIME = hard_locale (LC_TIME);
  #endif
  
-@@ -4374,6 +5018,29 @@ main (int argc, char **argv)
+@@ -4382,6 +5026,29 @@ main (int argc, char **argv)
        thousands_sep = NON_CHAR;
    }
  
@@ -4034,7 +4034,7 @@ index 2d8324c..46331b8 100644
    have_read_stdin = false;
    inittables ();
  
-@@ -4644,13 +5311,34 @@ main (int argc, char **argv)
+@@ -4652,13 +5319,34 @@ main (int argc, char **argv)
  
          case 't':
            {
@@ -4073,7 +4073,7 @@ index 2d8324c..46331b8 100644
                  else
                    {
                      /* Provoke with 'sort -txx'.  Complain about
-@@ -4661,9 +5349,11 @@ main (int argc, char **argv)
+@@ -4669,9 +5357,11 @@ main (int argc, char **argv)
                             quote (optarg));
                    }
                }
@@ -4088,7 +4088,7 @@ index 2d8324c..46331b8 100644
            break;
  
 diff --git a/src/unexpand.c b/src/unexpand.c
-index aca67dd..f79c808 100644
+index aca67dd7..f79c8088 100644
 --- a/src/unexpand.c
 +++ b/src/unexpand.c
 @@ -39,6 +39,9 @@
@@ -4293,7 +4293,7 @@ index aca67dd..f79c808 100644
  }
  
 diff --git a/tests/Coreutils.pm b/tests/Coreutils.pm
-index 18e7bea..24a141b 100644
+index 18e7bea8..24a141b1 100644
 --- a/tests/Coreutils.pm
 +++ b/tests/Coreutils.pm
 @@ -269,6 +269,9 @@ sub run_tests ($$$$$)
@@ -4308,7 +4308,7 @@ index 18e7bea..24a141b 100644
            warn "$program_name: $test_name: test name is too long (> $max)\n";
 diff --git a/tests/expand/mb.sh b/tests/expand/mb.sh
 new file mode 100644
-index 0000000..dd6007c
+index 00000000..dd6007c0
 --- /dev/null
 +++ b/tests/expand/mb.sh
 @@ -0,0 +1,183 @@
@@ -4497,7 +4497,7 @@ index 0000000..dd6007c
 +exit $fail
 diff --git a/tests/i18n/sort.sh b/tests/i18n/sort.sh
 new file mode 100644
-index 0000000..26c95de
+index 00000000..26c95de9
 --- /dev/null
 +++ b/tests/i18n/sort.sh
 @@ -0,0 +1,29 @@
@@ -4531,11 +4531,11 @@ index 0000000..26c95de
 +
 +Exit $fail
 diff --git a/tests/local.mk b/tests/local.mk
-index fdbf369..a6ce49c 100644
+index 0b18ec9d..7c6d0893 100644
 --- a/tests/local.mk
 +++ b/tests/local.mk
-@@ -387,6 +387,8 @@ all_tests =					\
-   tests/sort/sort-discrim.sh			\
+@@ -388,6 +388,8 @@ all_tests =					\
+   tests/sort/sort-field-limit.sh		\
    tests/sort/sort-files0-from.pl		\
    tests/sort/sort-float.sh			\
 +  tests/misc/sort-mb-tests.sh			\
@@ -4543,7 +4543,7 @@ index fdbf369..a6ce49c 100644
    tests/sort/sort-h-thousands-sep.sh		\
    tests/sort/sort-merge.pl			\
    tests/sort/sort-merge-fdlimit.sh		\
-@@ -590,6 +592,7 @@ all_tests =					\
+@@ -591,6 +593,7 @@ all_tests =					\
    tests/du/threshold.sh				\
    tests/du/trailing-slash.sh			\
    tests/du/two-args.sh				\
@@ -4551,7 +4551,7 @@ index fdbf369..a6ce49c 100644
    tests/id/gnu-zero-uids.sh			\
    tests/id/no-context.sh			\
    tests/id/context.sh				\
-@@ -746,6 +749,7 @@ all_tests =					\
+@@ -747,6 +750,7 @@ all_tests =					\
    tests/touch/read-only.sh			\
    tests/touch/relative.sh			\
    tests/touch/trailing-slash.sh			\
@@ -4560,7 +4560,7 @@ index fdbf369..a6ce49c 100644
  
  # See tests/factor/create-test.sh.
 diff --git a/tests/misc/expand.pl b/tests/misc/expand.pl
-index 11f3fc4..d609a2c 100755
+index 11f3fc4b..d609a2cb 100755
 --- a/tests/misc/expand.pl
 +++ b/tests/misc/expand.pl
 @@ -27,6 +27,15 @@ my $prog = 'expand';
@@ -4627,7 +4627,7 @@ index 11f3fc4..d609a2c 100755
  my $verbose = $ENV{VERBOSE};
  
 diff --git a/tests/misc/fold.pl b/tests/misc/fold.pl
-index 00b4362..7d51bea 100755
+index 00b43624..7d51bea5 100755
 --- a/tests/misc/fold.pl
 +++ b/tests/misc/fold.pl
 @@ -20,9 +20,18 @@ use strict;
@@ -4701,7 +4701,7 @@ index 00b4362..7d51bea 100755
  exit $fail;
 diff --git a/tests/misc/sort-mb-tests.sh b/tests/misc/sort-mb-tests.sh
 new file mode 100644
-index 0000000..11836ba
+index 00000000..11836baa
 --- /dev/null
 +++ b/tests/misc/sort-mb-tests.sh
 @@ -0,0 +1,45 @@
@@ -4751,7 +4751,7 @@ index 0000000..11836ba
 +
 +Exit $fail
 diff --git a/tests/misc/unexpand.pl b/tests/misc/unexpand.pl
-index 76bcbd4..59eb819 100755
+index 76bcbd4d..59eb8199 100755
 --- a/tests/misc/unexpand.pl
 +++ b/tests/misc/unexpand.pl
 @@ -27,6 +27,14 @@ my $limits = getlimits ();
@@ -4808,7 +4808,7 @@ index 76bcbd4..59eb819 100755
  my $verbose = $ENV{VERBOSE};
  
 diff --git a/tests/pr/pr-tests.pl b/tests/pr/pr-tests.pl
-index 6b34e0b..34b4aeb 100755
+index 6b34e0b6..34b4aeb0 100755
 --- a/tests/pr/pr-tests.pl
 +++ b/tests/pr/pr-tests.pl
 @@ -24,6 +24,15 @@ use strict;
@@ -4877,7 +4877,7 @@ index 6b34e0b..34b4aeb 100755
  my $verbose = $ENV{VERBOSE};
  
 diff --git a/tests/sort/sort-merge.pl b/tests/sort/sort-merge.pl
-index 89eed0c..b855d73 100755
+index 89eed0c6..b855d738 100755
 --- a/tests/sort/sort-merge.pl
 +++ b/tests/sort/sort-merge.pl
 @@ -26,6 +26,15 @@ my $prog = 'sort';
@@ -4937,7 +4937,7 @@ index 89eed0c..b855d73 100755
  my $verbose = $ENV{VERBOSE};
  
 diff --git a/tests/sort/sort.pl b/tests/sort/sort.pl
-index d49f65f..ebba925 100755
+index d49f65f6..ebba9255 100755
 --- a/tests/sort/sort.pl
 +++ b/tests/sort/sort.pl
 @@ -24,10 +24,15 @@ my $prog = 'sort';
@@ -5006,7 +5006,7 @@ index d49f65f..ebba925 100755
  my $verbose = $ENV{VERBOSE};
 diff --git a/tests/unexpand/mb.sh b/tests/unexpand/mb.sh
 new file mode 100644
-index 0000000..8a82d74
+index 00000000..8a82d745
 --- /dev/null
 +++ b/tests/unexpand/mb.sh
 @@ -0,0 +1,172 @@
@@ -5183,5 +5183,5 @@ index 0000000..8a82d74
 +LC_ALL=C unexpand in in > out || fail=1
 +compare exp out > /dev/null 2>&1 || fail=1
 -- 
-2.46.1
+2.54.0
 

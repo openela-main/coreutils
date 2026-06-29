@@ -1,7 +1,7 @@
 Summary: A set of basic GNU tools commonly used in shell scripts
 Name:    coreutils
 Version: 9.5
-Release: 7%{?dist}
+Release: 8%{?dist}
 # some used parts of gnulib are under various variants of LGPL
 License: GPL-3.0-or-later AND GFDL-1.3-no-invariants-or-later AND LGPL-2.1-or-later AND LGPL-3.0-or-later
 Url:     https://www.gnu.org/software/coreutils/
@@ -40,6 +40,12 @@ Patch105: coreutils-9.5-ls-k-info-fix.patch
 # https://bugzilla.redhat.com/show_bug.cgi?id=2325167
 Patch106: coreutils-nproc-affinity-1.patch
 Patch107: coreutils-nproc-affinity-2.patch
+
+# CVE-2025-5278 - Heap Buffer Under-Read in sort via Key Specification
+# upstream commits (first patch fixes an unitialized read uncovered by the CVE reproducer):
+# https://cgit.git.savannah.gnu.org/cgit/coreutils.git/commit/?id=bfbb3ec7f798b179d7fa7b42673e068b18048899
+# https://cgit.git.savannah.gnu.org/cgit/coreutils.git/commit/?id=8c9602e3a145e9596dc1a63c6ed67865814b6633
+Patch108: coreutils-CVE-2025-5278.patch
 
 # (sb) lin18nux/lsb compliance - multibyte functionality patch
 Patch800: coreutils-i18n.patch
@@ -273,6 +279,9 @@ rm -f $RPM_BUILD_ROOT%{_infodir}/dir
 %license COPYING
 
 %changelog
+* Tue Jun 02 2026 Lukáš Zaoral <lzaoral@redhat.com> - 9.5-8
+- CVE-2025-5278 - Fix Heap Buffer Under-Read in sort via Key Specification (RHEL-180649)
+
 * Thu Jan 15 2026 Lukáš Zaoral <lzaoral@redhat.com> - 9.5-7
 - fold: fix processing of malformed UTF-8 sequences (RHEL-140116)
 
