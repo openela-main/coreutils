@@ -7,14 +7,15 @@ Subject: [PATCH] coreutils-df-direct.patch
  doc/coreutils.texi |  7 ++++++
  src/df.c           | 34 ++++++++++++++++++++++++++--
  tests/df/direct.sh | 55 ++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 94 insertions(+), 2 deletions(-)
+ tests/local.mk     |  1 +
+ 4 files changed, 95 insertions(+), 2 deletions(-)
  create mode 100755 tests/df/direct.sh
 
 diff --git a/doc/coreutils.texi b/doc/coreutils.texi
-index 5b9a597..6810c15 100644
+index 576dfbe..e246bd3 100644
 --- a/doc/coreutils.texi
 +++ b/doc/coreutils.texi
-@@ -11898,6 +11898,13 @@ some systems (notably SunOS), doing this yields more up to date results,
+@@ -11722,6 +11722,13 @@ some systems (notably SunOS), doing this yields more up to date results,
  but in general this option makes @command{df} much slower, especially when
  there are many or very busy file systems.
  
@@ -29,10 +30,10 @@ index 5b9a597..6810c15 100644
  @opindex --total
  @cindex grand total of disk size, usage and available space
 diff --git a/src/df.c b/src/df.c
-index 48025b9..c8efa5b 100644
+index 2ca487e..fd6e66e 100644
 --- a/src/df.c
 +++ b/src/df.c
-@@ -125,6 +125,9 @@ static bool print_type;
+@@ -121,6 +121,9 @@ static bool print_type;
  /* If true, print a grand total at the end.  */
  static bool print_grand_total;
  
@@ -42,7 +43,7 @@ index 48025b9..c8efa5b 100644
  /* Grand total data.  */
  static struct fs_usage grand_fsu;
  
-@@ -252,13 +255,15 @@ enum
+@@ -248,13 +251,15 @@ enum
    NO_SYNC_OPTION = CHAR_MAX + 1,
    SYNC_OPTION,
    TOTAL_OPTION,
@@ -59,7 +60,7 @@ index 48025b9..c8efa5b 100644
    {"inodes", no_argument, NULL, 'i'},
    {"human-readable", no_argument, NULL, 'h'},
    {"si", no_argument, NULL, 'H'},
-@@ -561,7 +566,10 @@ get_header (void)
+@@ -510,7 +515,10 @@ get_header (void)
    for (col = 0; col < ncolumns; col++)
      {
        char *cell = NULL;
@@ -71,7 +72,7 @@ index 48025b9..c8efa5b 100644
  
        if (columns[col]->field == SIZE_FIELD
            && (header_mode == DEFAULT_MODE
-@@ -1464,6 +1472,17 @@ get_point (const char *point, const struct stat *statp)
+@@ -1411,6 +1419,17 @@ get_point (const char *point, const struct stat *statp)
  static void
  get_entry (char const *name, struct stat const *statp)
  {
@@ -89,7 +90,7 @@ index 48025b9..c8efa5b 100644
    if ((S_ISBLK (statp->st_mode) || S_ISCHR (statp->st_mode))
        && get_disk (name))
      return;
-@@ -1534,6 +1553,7 @@ or all file systems by default.\n\
+@@ -1481,6 +1500,7 @@ or all file systems by default.\n\
    -B, --block-size=SIZE  scale sizes by SIZE before printing them; e.g.,\n\
                             '-BM' prints sizes in units of 1,048,576 bytes;\n\
                             see SIZE format below\n\
@@ -97,7 +98,7 @@ index 48025b9..c8efa5b 100644
    -h, --human-readable  print sizes in powers of 1024 (e.g., 1023M)\n\
    -H, --si              print sizes in powers of 1000 (e.g., 1.1G)\n\
  "), stdout);
-@@ -1624,6 +1644,9 @@ main (int argc, char **argv)
+@@ -1571,6 +1591,9 @@ main (int argc, char **argv)
                xstrtol_fatal (e, oi, c, long_options, optarg);
            }
            break;
@@ -107,7 +108,7 @@ index 48025b9..c8efa5b 100644
          case 'i':
            if (header_mode == OUTPUT_MODE)
              {
-@@ -1720,6 +1743,13 @@ main (int argc, char **argv)
+@@ -1667,6 +1690,13 @@ main (int argc, char **argv)
          }
      }
  
@@ -123,7 +124,7 @@ index 48025b9..c8efa5b 100644
        if (posix_format)
 diff --git a/tests/df/direct.sh b/tests/df/direct.sh
 new file mode 100755
-index 0000000..8e4cfb8
+index 0000000..8373705
 --- /dev/null
 +++ b/tests/df/direct.sh
 @@ -0,0 +1,55 @@
@@ -145,7 +146,7 @@ index 0000000..8e4cfb8
 +# You should have received a copy of the GNU General Public License
 +# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 +
-+. "${srcdir=.}/init.sh"; path_prepend_ ../src
++. "${srcdir=.}/tests/init.sh"; path_prepend_ ./src
 +print_ver_ df
 +
 +df || skip_ "df fails"
@@ -182,6 +183,18 @@ index 0000000..8e4cfb8
 +compare file_out file_exp || fail=1
 +
 +Exit $fail
+diff --git a/tests/local.mk b/tests/local.mk
+index 48d7aff..c106102 100644
+--- a/tests/local.mk
++++ b/tests/local.mk
+@@ -513,6 +513,7 @@ all_tests =					\
+   tests/df/no-mtab-status.sh			\
+   tests/df/skip-duplicates.sh			\
+   tests/df/skip-rootfs.sh			\
++  tests/df/direct.sh				\
+   tests/dd/ascii.sh				\
+   tests/dd/direct.sh				\
+   tests/dd/misc.sh				\
 -- 
-2.31.1
+2.53.0
 

@@ -4,16 +4,16 @@ Date: Thu, 7 Jul 2016 12:53:26 +0200
 Subject: [PATCH] coreutils-i18n-un-expand-BOM.patch
 
 ---
- src/expand-common.c  | 114 +++++++++++++++++++++++++++++++++++++++++++++++++++
- src/expand-common.h  |  12 ++++++
- src/expand.c         |  45 +++++++++++++++++++-
- src/unexpand.c       |  43 ++++++++++++++++++-
- tests/expand/mb.sh   |  71 ++++++++++++++++++++++++++++++++
- tests/unexpand/mb.sh |  59 ++++++++++++++++++++++++++
- 6 files changed, 342 insertions(+), 2 deletions(-)
+ src/expand-common.c  | 114 +++++++++++++++++++++++++++++++++++++++++++
+ src/expand-common.h  |  12 +++++
+ src/expand.c         |  45 ++++++++++++++++-
+ src/unexpand.c       |  43 +++++++++++++++-
+ tests/expand/mb.sh   |  71 +++++++++++++++++++++++++++
+ tests/unexpand/mb.sh |  58 ++++++++++++++++++++++
+ 6 files changed, 341 insertions(+), 2 deletions(-)
 
 diff --git a/src/expand-common.c b/src/expand-common.c
-index 4657e46..97cbb09 100644
+index 20ab023..e1c8943 100644
 --- a/src/expand-common.c
 +++ b/src/expand-common.c
 @@ -19,6 +19,7 @@
@@ -145,7 +145,7 @@ index 4657e46..97cbb09 100644
     to the list of tab stops.  */
  extern void
 diff --git a/src/expand-common.h b/src/expand-common.h
-index 8cb2079..763bfda 100644
+index cd32509..2ecf5e6 100644
 --- a/src/expand-common.h
 +++ b/src/expand-common.h
 @@ -34,6 +34,18 @@ extern size_t max_column_width;
@@ -168,7 +168,7 @@ index 8cb2079..763bfda 100644
  extern void
  add_tab_stop (uintmax_t tabval);
 diff --git a/src/expand.c b/src/expand.c
-index 310b349..4136824 100644
+index 52d6ec1..50a4590 100644
 --- a/src/expand.c
 +++ b/src/expand.c
 @@ -103,11 +103,33 @@ expand (void)
@@ -235,7 +235,7 @@ index 310b349..4136824 100644
                }
              else
 diff --git a/src/unexpand.c b/src/unexpand.c
-index 863a90a..5681b58 100644
+index a818773..b37b319 100644
 --- a/src/unexpand.c
 +++ b/src/unexpand.c
 @@ -116,16 +116,36 @@ unexpand (void)
@@ -266,7 +266,7 @@ index 863a90a..5681b58 100644
    /* The worst case is a non-blank character, then one blank, then a
       tab stop, then MAX_COLUMN_WIDTH - 1 blanks, then a non-blank; so
       allocate MAX_COLUMN_WIDTH bytes to store the blanks.  */
-   pending_blank = xmalloc (max_column_width * sizeof (mbf_char_t));
+   pending_blank = xnmalloc (max_column_width, sizeof (mbf_char_t));
  
 -  mbf_init (mbf, fp);
 +  if (found_bom == true)
@@ -305,7 +305,7 @@ index 863a90a..5681b58 100644
                }
              else
 diff --git a/tests/expand/mb.sh b/tests/expand/mb.sh
-index 031be7a..1621c84 100755
+index 3a5eb95..6d6497a 100755
 --- a/tests/expand/mb.sh
 +++ b/tests/expand/mb.sh
 @@ -109,4 +109,75 @@ env printf '12345678
@@ -383,16 +383,15 @@ index 031be7a..1621c84 100755
 +LC_ALL=C expand in1 in1 > out || fail=1
 +compare exp out > /dev/null 2>&1 || fail=1
 +
- exit $fail
+ Exit $fail
 diff --git a/tests/unexpand/mb.sh b/tests/unexpand/mb.sh
-index 8d75652..9d4ee3e 100755
+index b1f0b2e..4d31ffd 100755
 --- a/tests/unexpand/mb.sh
 +++ b/tests/unexpand/mb.sh
-@@ -111,3 +111,62 @@ env printf '12345678
+@@ -127,4 +127,62 @@ ideo_space=$(env printf '\u3000')
+   unexpand -t1 >out 2>err; ret=$?
+ test "$ret" = 0 || { cat err; fail=1; }
  
- unexpand -a < in > out || fail=1
- compare exp out > /dev/null 2>&1 || fail=1
-+
 +#BOM header test 1
 +printf "\xEF\xBB\xBF" > in; cat <<\EOF >> in || framework_failure_
 +1234567812345678123456781
@@ -403,7 +402,6 @@ index 8d75652..9d4ee3e 100755
 +.       .       .       .
 +   äöü  .    öüä.       ä xx
 +EOF
-+env printf '   äöü\t.    öüä.   \tä xx\n' >> in || framework_failure_
 +
 +printf "\xEF\xBB\xBF" > exp; cat <<\EOF >> exp || framework_failure_
 +1234567812345678123456781
@@ -415,13 +413,13 @@ index 8d75652..9d4ee3e 100755
 +   äöü	.    öüä.	ä xx
 +EOF
 +
-+unexpand < in > out || fail=1
++unexpand -a < in > out || fail=1
 +compare exp out > /dev/null 2>&1 || fail=1
 +
-+LANG=C unexpand < in > out || fail=1
++LANG=C unexpand -a < in > out || fail=1
 +compare exp out > /dev/null 2>&1 || fail=1
 +
-+LC_ALL=C unexpand < in > out || fail=1
++LC_ALL=C unexpand -a < in > out || fail=1
 +compare exp out > /dev/null 2>&1 || fail=1
 +
 +
@@ -443,14 +441,16 @@ index 8d75652..9d4ee3e 100755
 +EOF
 +
 +
-+unexpand in in > out || fail=1
++unexpand -a in in > out || fail=1
 +compare exp out > /dev/null 2>&1 || fail=1
 +
-+LANG=C unexpand in in > out || fail=1
++LANG=C unexpand -a in in > out || fail=1
 +compare exp out > /dev/null 2>&1 || fail=1
 +
-+LC_ALL=C unexpand in in > out || fail=1
++LC_ALL=C unexpand -a in in > out || fail=1
 +compare exp out > /dev/null 2>&1 || fail=1
++
+ Exit $fail
 -- 
-2.9.3
+2.54.0
 

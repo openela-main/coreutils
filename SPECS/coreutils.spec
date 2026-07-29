@@ -1,7 +1,7 @@
 Summary: A set of basic GNU tools commonly used in shell scripts
 Name:    coreutils
 Version: 8.30
-Release: 17%{?dist}
+Release: 20%{?dist}
 License: GPLv3+
 Group:   System Environment/Base
 Url:     https://www.gnu.org/software/coreutils/
@@ -296,6 +296,15 @@ fi
 %license COPYING
 
 %changelog
+* Wed Jun 10 2026 Lukáš Zaoral <lzaoral@redhat.com> - 8.30-20
+- unexpand: fix heap overflow when a wide blank overshoots a tab stop (RHEL-182699)
+
+* Mon Jun 08 2026 Lukáš Zaoral <lzaoral@redhat.com> - 8.30-19
+- unexpand: fix stack overflow with large tabsizes (RHEL-182699)
+
+* Sat Mar 21 2026 Lukáš Zaoral <lzaoral@redhat.com> - 8.30-18
+- fix df/direct.sh and unexpand/mb.sh tests (RHEL-151533)
+
 * Mon Jan 26 2026 Lukáš Zaoral <lzaoral@redhat.com> - 8.30-17
 - fold: fix processing of malformed UTF-8 sequences (RHEL-140117)
 
