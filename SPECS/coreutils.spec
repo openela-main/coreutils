@@ -1,7 +1,7 @@
 Summary: A set of basic GNU tools commonly used in shell scripts
 Name:    coreutils
 Version: 8.32
-Release: 41%{?dist}
+Release: 41%{?dist}.1
 License: GPLv3+
 Url:     https://www.gnu.org/software/coreutils/
 Source0: https://ftp.gnu.org/gnu/%{name}/%{name}-%{version}.tar.xz
@@ -337,7 +337,13 @@ rm -f $RPM_BUILD_ROOT%{_infodir}/dir
 %license COPYING
 
 %changelog
-* Mon Jun 01 2026 Lukáš Zaoral <lzaoral@redhat.com> - 9.5-8
+* Tue Jul 28 2026 Lukáš Zaoral <lzaoral@redhat.com> - 8.32-41.1
+- unexpand: fix CVE-2026-56392 and related crashes (RHEL-216788)
+  - fix direct.sh and unexpand/mb.sh tests
+  - fix heap overflow with large tab stops
+  - fix heap overflow when a wide blank overshoots a tab stop
+
+* Mon Jun 01 2026 Lukáš Zaoral <lzaoral@redhat.com> - 8.32-41
 - CVE-2025-5278 - Fix Heap Buffer Under-Read in sort via Key Specification (RHEL-180331)
 
 * Thu Jan 15 2026 Lukáš Zaoral <lzaoral@redhat.com> - 8.32-40

@@ -1,8 +1,8 @@
 diff --git a/src/expand.c b/src/expand.c
-index 380e020..310b349 100644
+index ec91d01..8144e43 100644
 --- a/src/expand.c
 +++ b/src/expand.c
-@@ -129,15 +129,19 @@ expand (void)
+@@ -127,15 +127,19 @@ expand (void)
  
        do
          {
@@ -27,7 +27,7 @@ index 380e020..310b349 100644
            if (convert)
              {
 diff --git a/src/unexpand.c b/src/unexpand.c
-index 3bbbd66..863a90a 100644
+index e7f4e8a..7a010e2 100644
 --- a/src/unexpand.c
 +++ b/src/unexpand.c
 @@ -164,15 +164,19 @@ unexpand (void)
@@ -55,7 +55,7 @@ index 3bbbd66..863a90a 100644
            if (convert)
              {
 diff --git a/tests/expand/mb.sh b/tests/expand/mb.sh
-index 7971e18..031be7a 100755
+index dab27b4..3a5eb95 100755
 --- a/tests/expand/mb.sh
 +++ b/tests/expand/mb.sh
 @@ -44,6 +44,20 @@ EOF
@@ -80,7 +80,7 @@ index 7971e18..031be7a 100755
  env printf '12345678
  e\t|ascii(1)
 diff --git a/tests/unexpand/mb.sh b/tests/unexpand/mb.sh
-index 60d4c1a..8d75652 100755
+index a7b6ad0..92962f6 100755
 --- a/tests/unexpand/mb.sh
 +++ b/tests/unexpand/mb.sh
 @@ -44,6 +44,22 @@ EOF

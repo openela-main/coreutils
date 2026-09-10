@@ -7,11 +7,12 @@ Subject: [PATCH] coreutils-df-direct.patch
  doc/coreutils.texi |  7 ++++++
  src/df.c           | 34 ++++++++++++++++++++++++++--
  tests/df/direct.sh | 55 ++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 94 insertions(+), 2 deletions(-)
+ tests/local.mk     |  1 +
+ 4 files changed, 95 insertions(+), 2 deletions(-)
  create mode 100755 tests/df/direct.sh
 
 diff --git a/doc/coreutils.texi b/doc/coreutils.texi
-index 5b9a597..6810c15 100644
+index 904ba0a..93c4eca 100644
 --- a/doc/coreutils.texi
 +++ b/doc/coreutils.texi
 @@ -11898,6 +11898,13 @@ some systems (notably SunOS), doing this yields more up to date results,
@@ -29,7 +30,7 @@ index 5b9a597..6810c15 100644
  @opindex --total
  @cindex grand total of disk size, usage and available space
 diff --git a/src/df.c b/src/df.c
-index 48025b9..c8efa5b 100644
+index 9998939..bdcfba0 100644
 --- a/src/df.c
 +++ b/src/df.c
 @@ -125,6 +125,9 @@ static bool print_type;
@@ -123,7 +124,7 @@ index 48025b9..c8efa5b 100644
        if (posix_format)
 diff --git a/tests/df/direct.sh b/tests/df/direct.sh
 new file mode 100755
-index 0000000..8e4cfb8
+index 0000000..8373705
 --- /dev/null
 +++ b/tests/df/direct.sh
 @@ -0,0 +1,55 @@
@@ -145,7 +146,7 @@ index 0000000..8e4cfb8
 +# You should have received a copy of the GNU General Public License
 +# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 +
-+. "${srcdir=.}/init.sh"; path_prepend_ ../src
++. "${srcdir=.}/tests/init.sh"; path_prepend_ ./src
 +print_ver_ df
 +
 +df || skip_ "df fails"
@@ -182,6 +183,18 @@ index 0000000..8e4cfb8
 +compare file_out file_exp || fail=1
 +
 +Exit $fail
+diff --git a/tests/local.mk b/tests/local.mk
+index a417907..d07601e 100644
+--- a/tests/local.mk
++++ b/tests/local.mk
+@@ -524,6 +524,7 @@ all_tests =					\
+   tests/df/no-mtab-status.sh			\
+   tests/df/skip-duplicates.sh			\
+   tests/df/skip-rootfs.sh			\
++  tests/df/direct.sh				\
+   tests/dd/ascii.sh				\
+   tests/dd/direct.sh				\
+   tests/dd/misc.sh				\
 -- 
-2.31.1
+2.53.0
 
