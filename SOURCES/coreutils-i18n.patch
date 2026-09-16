@@ -1,4 +1,4 @@
-From a54e632beb3a3f1f980103deea1cf9a8bdd164ac Mon Sep 17 00:00:00 2001
+From cc12563d7081e507b2fb815430c6db8610afb018 Mon Sep 17 00:00:00 2001
 From: rpm-build <rpm-build>
 Date: Wed, 30 Aug 2023 17:19:58 +0200
 Subject: [PATCH] coreutils-i18n.patch
@@ -10,7 +10,7 @@ Subject: [PATCH] coreutils-i18n.patch
  lib/mbchar.c                |  23 ++
  lib/mbchar.h                | 373 +++++++++++++++++
  lib/mbfile.c                |  20 +
- lib/mbfile.h                | 267 ++++++++++++
+ lib/mbfile.h                | 261 ++++++++++++
  m4/mbchar.m4                |  13 +
  m4/mbfile.m4                |  14 +
  src/cut.c                   | 508 +++++++++++++++++++++--
@@ -21,7 +21,7 @@ Subject: [PATCH] coreutils-i18n.patch
  src/local.mk                |   4 +-
  src/pr.c                    | 443 ++++++++++++++++++--
  src/sort.c                  | 792 +++++++++++++++++++++++++++++++++---
- src/unexpand.c              | 102 ++++-
+ src/unexpand.c              | 104 ++++-
  tests/Coreutils.pm          |   3 +
  tests/expand/mb.sh          | 183 +++++++++
  tests/i18n/sort.sh          |  29 ++
@@ -33,8 +33,8 @@ Subject: [PATCH] coreutils-i18n.patch
  tests/pr/pr-tests.pl        |  49 +++
  tests/sort/sort-merge.pl    |  42 ++
  tests/sort/sort.pl          |  40 +-
- tests/unexpand/mb.sh        | 172 ++++++++
- 30 files changed, 3605 insertions(+), 196 deletions(-)
+ tests/unexpand/mb.sh        | 188 +++++++++
+ 30 files changed, 3616 insertions(+), 197 deletions(-)
  create mode 100644 lib/mbchar.c
  create mode 100644 lib/mbchar.h
  create mode 100644 lib/mbfile.c
@@ -47,7 +47,7 @@ Subject: [PATCH] coreutils-i18n.patch
  create mode 100644 tests/unexpand/mb.sh
 
 diff --git a/bootstrap.conf b/bootstrap.conf
-index 126e1e80..b4ccebf2 100644
+index 126e1e8..b4ccebf 100644
 --- a/bootstrap.conf
 +++ b/bootstrap.conf
 @@ -163,6 +163,8 @@ gnulib_modules="
@@ -60,7 +60,7 @@ index 126e1e80..b4ccebf2 100644
    mbrtoc32
    mbrtowc
 diff --git a/configure.ac b/configure.ac
-index 9cb6ee14..1131ce35 100644
+index 9cb6ee1..1131ce3 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -504,6 +504,12 @@ fi
@@ -77,7 +77,7 @@ index 9cb6ee14..1131ce35 100644
  
  if test $gl_cv_sys_tiocgwinsz_needs_termios_h = no && \
 diff --git a/lib/linebuffer.h b/lib/linebuffer.h
-index ae0d55dd..5bf53503 100644
+index ae0d55d..5bf5350 100644
 --- a/lib/linebuffer.h
 +++ b/lib/linebuffer.h
 @@ -22,6 +22,11 @@
@@ -104,7 +104,7 @@ index ae0d55dd..5bf53503 100644
  /* Initialize linebuffer LINEBUFFER for use. */
 diff --git a/lib/mbchar.c b/lib/mbchar.c
 new file mode 100644
-index 00000000..d94b7c33
+index 0000000..d94b7c3
 --- /dev/null
 +++ b/lib/mbchar.c
 @@ -0,0 +1,23 @@
@@ -133,7 +133,7 @@ index 00000000..d94b7c33
 +#include "mbchar.h"
 diff --git a/lib/mbchar.h b/lib/mbchar.h
 new file mode 100644
-index 00000000..c06ef11b
+index 0000000..c06ef11
 --- /dev/null
 +++ b/lib/mbchar.h
 @@ -0,0 +1,373 @@
@@ -512,7 +512,7 @@ index 00000000..c06ef11b
 +#endif /* _MBCHAR_H */
 diff --git a/lib/mbfile.c b/lib/mbfile.c
 new file mode 100644
-index 00000000..8d2957b5
+index 0000000..8d2957b
 --- /dev/null
 +++ b/lib/mbfile.c
 @@ -0,0 +1,20 @@
@@ -538,10 +538,10 @@ index 00000000..8d2957b5
 +#include "mbfile.h"
 diff --git a/lib/mbfile.h b/lib/mbfile.h
 new file mode 100644
-index 00000000..ad61c193
+index 0000000..1ea1358
 --- /dev/null
 +++ b/lib/mbfile.h
-@@ -0,0 +1,267 @@
+@@ -0,0 +1,261 @@
 +/* Multibyte character I/O: macros for multi-byte encodings.
 +   Copyright (C) 2001, 2005, 2009-2023 Free Software Foundation, Inc.
 +
@@ -641,11 +641,7 @@ index 00000000..ad61c193
 +
 +  /* If mbf->state is not in an initial state, some more 32-bit wide character
 +     may be hiding in the state.  We need to call mbrtoc32 again.  */
-+  #if GNULIB_MBRTOC32_REGULAR
-+  assert (mbsinit (&mbf->state));
-+  #else
 +  if (mbsinit (&mbf->state))
-+  #endif
 +    {
 +      /* Before using mbrtoc32, we need at least one byte.  */
 +      if (new_bufcount == 0)
@@ -727,7 +723,6 @@ index 00000000..ad61c193
 +        }
 +      else
 +        {
-+          #if !GNULIB_MBRTOC32_REGULAR
 +          if (bytes == (size_t) -3)
 +            {
 +              /* The previous multibyte sequence produced an additional 32-bit
@@ -736,7 +731,6 @@ index 00000000..ad61c193
 +              bytes = 0;
 +            }
 +          else
-+          #endif
 +            {
 +              bytes = mbf->bufcount + bytes;
 +              mbf->bufcount = new_bufcount;
@@ -811,7 +805,7 @@ index 00000000..ad61c193
 +#endif /* _MBFILE_H */
 diff --git a/m4/mbchar.m4 b/m4/mbchar.m4
 new file mode 100644
-index 00000000..471e8c45
+index 0000000..471e8c4
 --- /dev/null
 +++ b/m4/mbchar.m4
 @@ -0,0 +1,13 @@
@@ -830,7 +824,7 @@ index 00000000..471e8c45
 +])
 diff --git a/m4/mbfile.m4 b/m4/mbfile.m4
 new file mode 100644
-index 00000000..83068a99
+index 0000000..83068a9
 --- /dev/null
 +++ b/m4/mbfile.m4
 @@ -0,0 +1,14 @@
@@ -849,7 +843,7 @@ index 00000000..83068a99
 +  :
 +])
 diff --git a/src/cut.c b/src/cut.c
-index 061e09c3..6d104259 100644
+index 061e09c..6d10425 100644
 --- a/src/cut.c
 +++ b/src/cut.c
 @@ -27,6 +27,11 @@
@@ -1509,7 +1503,7 @@ index 061e09c3..6d104259 100644
  
    if (have_read_stdin && fclose (stdin) == EOF)
 diff --git a/src/expand-common.c b/src/expand-common.c
-index c95998dc..d4386fec 100644
+index c95998d..d4386fe 100644
 --- a/src/expand-common.c
 +++ b/src/expand-common.c
 @@ -19,6 +19,7 @@
@@ -1641,7 +1635,7 @@ index c95998dc..d4386fec 100644
     to the list of tab stops.  */
  extern void
 diff --git a/src/expand-common.h b/src/expand-common.h
-index 1a57108e..60256522 100644
+index 1a57108..6025652 100644
 --- a/src/expand-common.h
 +++ b/src/expand-common.h
 @@ -25,6 +25,18 @@ extern size_t max_column_width;
@@ -1664,7 +1658,7 @@ index 1a57108e..60256522 100644
  extern void
  add_tab_stop (uintmax_t tabval);
 diff --git a/src/expand.c b/src/expand.c
-index a6176a97..60b1b8ee 100644
+index a6176a9..60b1b8e 100644
 --- a/src/expand.c
 +++ b/src/expand.c
 @@ -38,6 +38,9 @@
@@ -1820,7 +1814,7 @@ index a6176a97..60b1b8ee 100644
  }
  
 diff --git a/src/fold.c b/src/fold.c
-index 941ad11c..2b119815 100644
+index 941ad11..2b11981 100644
 --- a/src/fold.c
 +++ b/src/fold.c
 @@ -23,10 +23,32 @@
@@ -2224,7 +2218,7 @@ index 941ad11c..2b119815 100644
  
          case 's':		/* Break at word boundaries. */
 diff --git a/src/local.mk b/src/local.mk
-index 96ee941c..8fdb8fc3 100644
+index 96ee941..8fdb8fc 100644
 --- a/src/local.mk
 +++ b/src/local.mk
 @@ -450,8 +450,8 @@ src_base32_CPPFLAGS = -DBASE_TYPE=32 $(AM_CPPFLAGS)
@@ -2239,7 +2233,7 @@ index 96ee941c..8fdb8fc3 100644
  src_wc_SOURCES = src/wc.c
  if USE_AVX2_WC_LINECOUNT
 diff --git a/src/pr.c b/src/pr.c
-index 09c6fa8a..7552b629 100644
+index 09c6fa8..7552b62 100644
 --- a/src/pr.c
 +++ b/src/pr.c
 @@ -312,6 +312,24 @@
@@ -3010,7 +3004,7 @@ index 09c6fa8a..7552b629 100644
     looking for more options and printing the next batch of files.
  
 diff --git a/src/sort.c b/src/sort.c
-index 09634197..dea94575 100644
+index 0963419..dea9457 100644
 --- a/src/sort.c
 +++ b/src/sort.c
 @@ -29,6 +29,14 @@
@@ -4088,7 +4082,7 @@ index 09634197..dea94575 100644
            break;
  
 diff --git a/src/unexpand.c b/src/unexpand.c
-index aca67dd7..f79c8088 100644
+index aca67dd..ae897d5 100644
 --- a/src/unexpand.c
 +++ b/src/unexpand.c
 @@ -39,6 +39,9 @@
@@ -4137,7 +4131,7 @@ index aca67dd7..f79c8088 100644
       tab stop, then MAX_COLUMN_WIDTH - 1 blanks, then a non-blank; so
       allocate MAX_COLUMN_WIDTH bytes to store the blanks.  */
 -  pending_blank = xmalloc (max_column_width);
-+  pending_blank = xmalloc (max_column_width * sizeof (mbf_char_t));
++  pending_blank = xinmalloc (max_column_width, sizeof (mbf_char_t));
 +
 +  if (found_bom == true)
 +  {
@@ -4200,7 +4194,7 @@ index aca67dd7..f79c8088 100644
  
                if (blank)
                  {
-@@ -178,16 +236,16 @@ unexpand (void)
+@@ -178,30 +236,31 @@ unexpand (void)
                        if (next_tab_column < column)
                          error (EXIT_FAILURE, 0, _("input line is too long"));
  
@@ -4218,9 +4212,10 @@ index aca67dd7..f79c8088 100644
 -                          column++;
 +                          column += mb_width (c);
  
-                           if (! (prev_blank && column == next_tab_column))
+-                          if (! (prev_blank && column == next_tab_column))
++                          if (! (prev_blank && column >= next_tab_column))
                              {
-@@ -195,13 +253,14 @@ unexpand (void)
+                               /* It is not yet known whether the pending blanks
                                   will be replaced by tabs.  */
                                if (column == next_tab_column)
                                  one_blank_before_tab_stop = true;
@@ -4293,7 +4288,7 @@ index aca67dd7..f79c8088 100644
  }
  
 diff --git a/tests/Coreutils.pm b/tests/Coreutils.pm
-index 18e7bea8..24a141b1 100644
+index 18e7bea..24a141b 100644
 --- a/tests/Coreutils.pm
 +++ b/tests/Coreutils.pm
 @@ -269,6 +269,9 @@ sub run_tests ($$$$$)
@@ -4308,7 +4303,7 @@ index 18e7bea8..24a141b1 100644
            warn "$program_name: $test_name: test name is too long (> $max)\n";
 diff --git a/tests/expand/mb.sh b/tests/expand/mb.sh
 new file mode 100644
-index 00000000..dd6007c0
+index 0000000..6d6497a
 --- /dev/null
 +++ b/tests/expand/mb.sh
 @@ -0,0 +1,183 @@
@@ -4494,10 +4489,10 @@ index 00000000..dd6007c0
 +LC_ALL=C expand in1 in1 > out || fail=1
 +compare exp out > /dev/null 2>&1 || fail=1
 +
-+exit $fail
++Exit $fail
 diff --git a/tests/i18n/sort.sh b/tests/i18n/sort.sh
 new file mode 100644
-index 00000000..26c95de9
+index 0000000..26c95de
 --- /dev/null
 +++ b/tests/i18n/sort.sh
 @@ -0,0 +1,29 @@
@@ -4531,7 +4526,7 @@ index 00000000..26c95de9
 +
 +Exit $fail
 diff --git a/tests/local.mk b/tests/local.mk
-index 0b18ec9d..7c6d0893 100644
+index d4546a0..3bd7453 100644
 --- a/tests/local.mk
 +++ b/tests/local.mk
 @@ -388,6 +388,8 @@ all_tests =					\
@@ -4543,7 +4538,7 @@ index 0b18ec9d..7c6d0893 100644
    tests/sort/sort-h-thousands-sep.sh		\
    tests/sort/sort-merge.pl			\
    tests/sort/sort-merge-fdlimit.sh		\
-@@ -591,6 +593,7 @@ all_tests =					\
+@@ -592,6 +594,7 @@ all_tests =					\
    tests/du/threshold.sh				\
    tests/du/trailing-slash.sh			\
    tests/du/two-args.sh				\
@@ -4551,7 +4546,7 @@ index 0b18ec9d..7c6d0893 100644
    tests/id/gnu-zero-uids.sh			\
    tests/id/no-context.sh			\
    tests/id/context.sh				\
-@@ -747,6 +750,7 @@ all_tests =					\
+@@ -748,6 +751,7 @@ all_tests =					\
    tests/touch/read-only.sh			\
    tests/touch/relative.sh			\
    tests/touch/trailing-slash.sh			\
@@ -4560,7 +4555,7 @@ index 0b18ec9d..7c6d0893 100644
  
  # See tests/factor/create-test.sh.
 diff --git a/tests/misc/expand.pl b/tests/misc/expand.pl
-index 11f3fc4b..d609a2cb 100755
+index 11f3fc4..d609a2c 100755
 --- a/tests/misc/expand.pl
 +++ b/tests/misc/expand.pl
 @@ -27,6 +27,15 @@ my $prog = 'expand';
@@ -4627,7 +4622,7 @@ index 11f3fc4b..d609a2cb 100755
  my $verbose = $ENV{VERBOSE};
  
 diff --git a/tests/misc/fold.pl b/tests/misc/fold.pl
-index 00b43624..7d51bea5 100755
+index 00b4362..7d51bea 100755
 --- a/tests/misc/fold.pl
 +++ b/tests/misc/fold.pl
 @@ -20,9 +20,18 @@ use strict;
@@ -4701,7 +4696,7 @@ index 00b43624..7d51bea5 100755
  exit $fail;
 diff --git a/tests/misc/sort-mb-tests.sh b/tests/misc/sort-mb-tests.sh
 new file mode 100644
-index 00000000..11836baa
+index 0000000..11836ba
 --- /dev/null
 +++ b/tests/misc/sort-mb-tests.sh
 @@ -0,0 +1,45 @@
@@ -4751,7 +4746,7 @@ index 00000000..11836baa
 +
 +Exit $fail
 diff --git a/tests/misc/unexpand.pl b/tests/misc/unexpand.pl
-index 76bcbd4d..59eb8199 100755
+index 76bcbd4..59eb819 100755
 --- a/tests/misc/unexpand.pl
 +++ b/tests/misc/unexpand.pl
 @@ -27,6 +27,14 @@ my $limits = getlimits ();
@@ -4808,7 +4803,7 @@ index 76bcbd4d..59eb8199 100755
  my $verbose = $ENV{VERBOSE};
  
 diff --git a/tests/pr/pr-tests.pl b/tests/pr/pr-tests.pl
-index 6b34e0b6..34b4aeb0 100755
+index 6b34e0b..34b4aeb 100755
 --- a/tests/pr/pr-tests.pl
 +++ b/tests/pr/pr-tests.pl
 @@ -24,6 +24,15 @@ use strict;
@@ -4877,7 +4872,7 @@ index 6b34e0b6..34b4aeb0 100755
  my $verbose = $ENV{VERBOSE};
  
 diff --git a/tests/sort/sort-merge.pl b/tests/sort/sort-merge.pl
-index 89eed0c6..b855d738 100755
+index 89eed0c..b855d73 100755
 --- a/tests/sort/sort-merge.pl
 +++ b/tests/sort/sort-merge.pl
 @@ -26,6 +26,15 @@ my $prog = 'sort';
@@ -4937,7 +4932,7 @@ index 89eed0c6..b855d738 100755
  my $verbose = $ENV{VERBOSE};
  
 diff --git a/tests/sort/sort.pl b/tests/sort/sort.pl
-index d49f65f6..ebba9255 100755
+index d49f65f..ebba925 100755
 --- a/tests/sort/sort.pl
 +++ b/tests/sort/sort.pl
 @@ -24,10 +24,15 @@ my $prog = 'sort';
@@ -5006,10 +5001,10 @@ index d49f65f6..ebba9255 100755
  my $verbose = $ENV{VERBOSE};
 diff --git a/tests/unexpand/mb.sh b/tests/unexpand/mb.sh
 new file mode 100644
-index 00000000..8a82d745
+index 0000000..5229b7c
 --- /dev/null
 +++ b/tests/unexpand/mb.sh
-@@ -0,0 +1,172 @@
+@@ -0,0 +1,188 @@
 +#!/bin/sh
 +
 +# Copyright (C) 2012-2015 Free Software Foundation, Inc.
@@ -5029,6 +5024,7 @@ index 00000000..8a82d745
 +
 +. "${srcdir=.}/tests/init.sh"; path_prepend_ ./src
 +print_ver_ unexpand
++getlimits_
 +
 +export LC_ALL=en_US.UTF-8
 +
@@ -5086,7 +5082,7 @@ index 00000000..8a82d745
 +e\t|ascii(1)
 +\u00E9\t|composed(1)
 +e\u0301\t|decomposed(1)
-+\u3000\t|ideo-space(2)
++\t|ideo-space(2)
 +\uFF0D\t|full-hypen(2)
 +' > exp || framework_failure_
 +
@@ -5108,7 +5104,7 @@ index 00000000..8a82d745
 +ä\xFF      |
 +        ä\xFF|
 +\xFF       ä|
-+äbcdef\xFF |
++äbcde\xFF  |
 +' > in || framework_failure_
 +
 +env printf '12345678
@@ -5118,7 +5114,7 @@ index 00000000..8a82d745
 +ä\xFF\t|
 +\tä\xFF|
 +\xFF\tä|
-+äbcdef\xFF\t|
++äbcde\xFF\t|
 +' > exp || framework_failure_
 +
 +unexpand -a < in > out || fail=1
@@ -5134,7 +5130,6 @@ index 00000000..8a82d745
 +.       .       .       .
 +   äöü  .    öüä.       ä xx
 +EOF
-+env printf '   äöü\t.    öüä.   \tä xx\n' >> in || framework_failure_
 +
 +printf "\xEF\xBB\xBF" > exp; cat <<\EOF >> exp || framework_failure_
 +1234567812345678123456781
@@ -5146,13 +5141,13 @@ index 00000000..8a82d745
 +   äöü	.    öüä.	ä xx
 +EOF
 +
-+unexpand < in > out || fail=1
++unexpand -a < in > out || fail=1
 +compare exp out > /dev/null 2>&1 || fail=1
 +
-+LANG=C unexpand < in > out || fail=1
++LANG=C unexpand -a < in > out || fail=1
 +compare exp out > /dev/null 2>&1 || fail=1
 +
-+LC_ALL=C unexpand < in > out || fail=1
++LC_ALL=C unexpand -a < in > out || fail=1
 +compare exp out > /dev/null 2>&1 || fail=1
 +
 +
@@ -5174,14 +5169,30 @@ index 00000000..8a82d745
 +EOF
 +
 +
-+unexpand in in > out || fail=1
++unexpand -a in in > out || fail=1
 +compare exp out > /dev/null 2>&1 || fail=1
 +
-+LANG=C unexpand in in > out || fail=1
++LANG=C unexpand -a in in > out || fail=1
 +compare exp out > /dev/null 2>&1 || fail=1
 +
-+LC_ALL=C unexpand in in > out || fail=1
++LC_ALL=C unexpand -a in in > out || fail=1
 +compare exp out > /dev/null 2>&1 || fail=1
++
++for mb_mul in 4 6; do
++  printf '   \n' | unexpand -t $(expr $SIZE_MAX / $mb_mul + 1) 2>err; ret=$?
++  test "$ret" = 1 || test "$ret" = 0 || { cat err; fail=1; }
++done
++
++# A blank whose display width exceeds the tab distance must not overrun
++# the pending-blank buffer.  With -t1 every column is a tab stop, so a
++# width-2 ideographic space steps over the stop without landing on it;
++# the run of blanks then grew pending_blank without bound.
++ideo_space=$(env printf '\u3000')
++{ yes "$ideo_space" | head -n 40000 | tr -d '\n'; echo; } |
++  unexpand -t1 >out 2>err; ret=$?
++test "$ret" = 0 || { cat err; fail=1; }
++
++Exit $fail
 -- 
-2.54.0
+2.55.0
 

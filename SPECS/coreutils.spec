@@ -1,7 +1,7 @@
 Summary: A set of basic GNU tools commonly used in shell scripts
 Name:    coreutils
 Version: 9.5
-Release: 8%{?dist}
+Release: 8%{?dist}.1
 # some used parts of gnulib are under various variants of LGPL
 License: GPL-3.0-or-later AND GFDL-1.3-no-invariants-or-later AND LGPL-2.1-or-later AND LGPL-3.0-or-later
 Url:     https://www.gnu.org/software/coreutils/
@@ -46,6 +46,10 @@ Patch107: coreutils-nproc-affinity-2.patch
 # https://cgit.git.savannah.gnu.org/cgit/coreutils.git/commit/?id=bfbb3ec7f798b179d7fa7b42673e068b18048899
 # https://cgit.git.savannah.gnu.org/cgit/coreutils.git/commit/?id=8c9602e3a145e9596dc1a63c6ed67865814b6633
 Patch108: coreutils-CVE-2025-5278.patch
+
+# CVE-2026-56391 - uniq: Denial of Service and information disclosure via out-of-bounds read with multibyte input
+# https://cgit.git.savannah.gnu.org/cgit/coreutils.git/commit/?id=d64e35a8a4c0e4608321433e0d84d917e4e36371
+Patch109: coreutils-CVE-2026-56391.patch
 
 # (sb) lin18nux/lsb compliance - multibyte functionality patch
 Patch800: coreutils-i18n.patch
@@ -279,6 +283,15 @@ rm -f $RPM_BUILD_ROOT%{_infodir}/dir
 %license COPYING
 
 %changelog
+* Mon Jul 27 2026 Lukáš Zaoral <lzaoral@redhat.com> - 9.5-8.1
+- uniq: fix CVE-2026-56391 (RHEL-216794)
+  - fix read overrun with -w
+- unexpand: fix CVE-2026-56392 and related crashes (RHEL-216784)
+  - fix direct.sh and unexpand/mb.sh tests
+  - fix unexpand/expand crash on invalid multibyte characters
+  - fix heap overflow with large tab stops
+  - fix heap overflow when a wide blank overshoots a tab stop
+
 * Tue Jun 02 2026 Lukáš Zaoral <lzaoral@redhat.com> - 9.5-8
 - CVE-2025-5278 - Fix Heap Buffer Under-Read in sort via Key Specification (RHEL-180649)
 
