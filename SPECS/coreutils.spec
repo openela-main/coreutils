@@ -1,7 +1,7 @@
 Summary: A set of basic GNU tools commonly used in shell scripts
 Name:    coreutils
 Version: 8.30
-Release: 20%{?dist}
+Release: 21%{?dist}
 License: GPLv3+
 Group:   System Environment/Base
 Url:     https://www.gnu.org/software/coreutils/
@@ -106,6 +106,10 @@ Patch908: coreutils-getgrouplist.patch
 #SELINUX Patch - implements Redhat changes
 #(upstream did some SELinux implementation unlike with RedHat patch)
 Patch950: coreutils-selinux.patch
+
+# sort: fix buffer under-read (CVE-2025-5278)
+# https://cgit.git.savannah.gnu.org/cgit/coreutils.git/commit/?id=8c9602e3a145e9596dc1a63c6ed67865814b6633
+Patch951: coreutils-8.30-CVE-2025-5278.patch
 
 Conflicts: filesystem < 3
 # To avoid clobbering installs
@@ -296,6 +300,9 @@ fi
 %license COPYING
 
 %changelog
+* Tue Jul 28 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 8.30-21
+- sort: fix buffer under-read CVE-2025-5278 (RHEL-216927)
+
 * Wed Jun 10 2026 Lukáš Zaoral <lzaoral@redhat.com> - 8.30-20
 - unexpand: fix heap overflow when a wide blank overshoots a tab stop (RHEL-182699)
 
