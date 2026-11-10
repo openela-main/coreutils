@@ -1,7 +1,7 @@
 Summary: A set of basic GNU tools commonly used in shell scripts
 Name:    coreutils
 Version: 9.5
-Release: 8%{?dist}.1
+Release: 13%{?dist}
 # some used parts of gnulib are under various variants of LGPL
 License: GPL-3.0-or-later AND GFDL-1.3-no-invariants-or-later AND LGPL-2.1-or-later AND LGPL-3.0-or-later
 Url:     https://www.gnu.org/software/coreutils/
@@ -47,9 +47,39 @@ Patch107: coreutils-nproc-affinity-2.patch
 # https://cgit.git.savannah.gnu.org/cgit/coreutils.git/commit/?id=8c9602e3a145e9596dc1a63c6ed67865814b6633
 Patch108: coreutils-CVE-2025-5278.patch
 
+# Fix --preserve=mode for ACLs (RHEL-132191)
+# upstream commit: https://git.savannah.gnu.org/cgit/gnulib.git/commit/?id=47947855dda53fd12bbae2a0fccecb2280577a60
+# upstream commit: https://git.savannah.gnu.org/cgit/gnulib.git/commit/?id=ccc26add4e1dca76e7a3ded465c94db4064bc20d
+# upstream commit: https://git.savannah.gnu.org/cgit/gnulib.git/commit/?id=0c55c3d7f74d42d273e0fffc8b774344eed65458
+# upstream commit: https://git.savannah.gnu.org/cgit/gnulib.git/commit/?id=276260e7ec35181b0ea9fddf5bab397cf1061eca
+# upstream commit: https://git.savannah.gnu.org/cgit/gnulib.git/commit/?id=9256d97e074bbae33bbd188e742daccfb72022de
+# upstream commit: https://git.savannah.gnu.org/cgit/gnulib.git/commit/?id=a6de9f388441c4389e2ee3a8e98486f195d67198
+# upstream commit: https://git.savannah.gnu.org/cgit/gnulib.git/commit/?id=8682f4d3c2aa0daff2c39935f4a3938d3db108d2
+# upstream commit: https://git.savannah.gnu.org/cgit/gnulib.git/commit/?id=fda640572909c9416cbfe76c385a4d48281561ca
+# upstream commit: https://git.savannah.gnu.org/cgit/gnulib.git/commit/?id=c3fe68e0a802db61d46e4cfd67a04e1476a47407
+# upstream commit: https://git.savannah.gnu.org/cgit/gnulib.git/commit/?id=6e398bee5adc9a88a0023767c457621e596e44c4
+# upstream commit: https://git.savannah.gnu.org/cgit/gnulib.git/commit/?id=a44d8b6c280e55873aadc88354a353abc8eac188
+# upstream commit: https://git.savannah.gnu.org/cgit/gnulib.git/commit/?id=407d038993aa2e1894c7312b94d0798d4cd96f02
+# upstream commit: https://git.savannah.gnu.org/cgit/gnulib.git/commit/?id=74b6a2a7386cf8586c1244297d4d87dde123db42
+# upstream commit: https://git.savannah.gnu.org/cgit/gnulib.git/commit/?id=10197d9c2c7d55c3b4eb999c7670cf8ec7d14c17
+# upstream commit: https://git.savannah.gnu.org/cgit/gnulib.git/commit/?id=c56c270c03eede5a3342e323f0469d5fdbc09cf0
+# upstream commit: https://git.savannah.gnu.org/cgit/gnulib.git/commit/?id=771fe316ce8041663a84fdb38ccc7419e6231e0c
+# upstream commit: https://git.savannah.gnu.org/cgit/gnulib.git/commit/?id=9dac7a63cb074ab459405cadc1b135b11af3e71b
+# upstream commit: https://git.savannah.gnu.org/cgit/gnulib.git/commit/?id=6a018d0492239d01c2cc8fd56a1acec4d6fcd44d
+# upstream commit: https://git.savannah.gnu.org/cgit/gnulib.git/commit/?id=a1615477559c4b93939b073b33f6d900d2fbed0c
+# upstream commit: https://git.savannah.gnu.org/cgit/gnulib.git/commit/?id=73a13b94b94f388f138eb49c52505eb317bac691
+# upstream commit: https://git.savannah.gnu.org/cgit/gnulib.git/commit/?id=64ce046c046563bce51e9a5ed4cf2422ee376c8b
+# upstream commit: https://git.savannah.gnu.org/cgit/gnulib.git/commit/?id=05c63bc908a67a316fea29ddf4c702d89cf5bdec
+# upstream commit: https://git.savannah.gnu.org/cgit/gnulib.git/commit/?id=caf768863e2a411ede373164e861b0bf6b707bcc
+# upstream commit: https://git.savannah.gnu.org/cgit/gnulib.git/commit/?id=c1a7af9bc8ebc9bbe9fb8d62664103810a76ba10
+# upstream commit: https://git.savannah.gnu.org/cgit/gnulib.git/commit/?id=41e7b7e0d159d8ac0eb385964119f350ac9dfc3f
+# upstream commit: https://git.savannah.gnu.org/cgit/gnulib.git/commit/?id=8a356b77717a2e4f735ec06e326880ca1f61aadb
+# upstream commit: https://git.savannah.gnu.org/cgit/gnulib.git/commit/?id=955360a66c99bdd9ac3688519a8b521b06958fd3
+Patch109: coreutils-9.5-cp-acl-preserve-mode.patch
+
 # CVE-2026-56391 - uniq: Denial of Service and information disclosure via out-of-bounds read with multibyte input
 # https://cgit.git.savannah.gnu.org/cgit/coreutils.git/commit/?id=d64e35a8a4c0e4608321433e0d84d917e4e36371
-Patch109: coreutils-CVE-2026-56391.patch
+Patch110: coreutils-CVE-2026-56391.patch
 
 # (sb) lin18nux/lsb compliance - multibyte functionality patch
 Patch800: coreutils-i18n.patch
@@ -283,17 +313,25 @@ rm -f $RPM_BUILD_ROOT%{_infodir}/dir
 %license COPYING
 
 %changelog
-* Mon Jul 27 2026 Lukáš Zaoral <lzaoral@redhat.com> - 9.5-8.1
-- uniq: fix CVE-2026-56391 (RHEL-216794)
-  - fix read overrun with -w
-- unexpand: fix CVE-2026-56392 and related crashes (RHEL-216784)
-  - fix direct.sh and unexpand/mb.sh tests
-  - fix unexpand/expand crash on invalid multibyte characters
-  - fix heap overflow with large tab stops
-  - fix heap overflow when a wide blank overshoots a tab stop
+* Wed Jul 29 2026 Lukáš Zaoral <lzaoral@redhat.com> - 9.5-13
+- uniq: fix CVE-2026-56391 (RHEL-216790)
+  - fix buffer overrun in multibyte locales
 
-* Tue Jun 02 2026 Lukáš Zaoral <lzaoral@redhat.com> - 9.5-8
-- CVE-2025-5278 - Fix Heap Buffer Under-Read in sort via Key Specification (RHEL-180649)
+* Wed Jun 10 2026 Lukáš Zaoral <lzaoral@redhat.com> - 9.5-12
+- unexpand: fix heap overflow when a wide blank overshoots a tab stop (RHEL-152110)
+
+* Tue Jun 09 2026 Lukáš Zaoral <lzaoral@redhat.com> - 9.5-11
+- Fix cp --preserve=mode for ACLs (RHEL-132191)
+
+* Fri Jun 05 2026 Lukáš Zaoral <lzaoral@redhat.com> - 9.5-10
+- CVE-2025-5278 - Fix Heap Buffer Under-Read in sort via Key Specification (RHEL-180650)
+- unexpand: fix stack overflow with large tabsizes (RHEL-152110)
+
+* Thu Mar 19 2026 Lukáš Zaoral <lzaoral@redhat.com> - 9.5-9
+- fix unexpand/expand crash on invalid multibyte characters (RHEL-152110)
+
+* Thu Mar 19 2026 Lukáš Zaoral <lzaoral@redhat.com> - 9.5-8
+- fix df/direct.sh and unexpand/mb.sh tests (RHEL-151532)
 
 * Thu Jan 15 2026 Lukáš Zaoral <lzaoral@redhat.com> - 9.5-7
 - fold: fix processing of malformed UTF-8 sequences (RHEL-140116)
