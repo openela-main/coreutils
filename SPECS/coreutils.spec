@@ -1,7 +1,7 @@
 Summary: A set of basic GNU tools commonly used in shell scripts
 Name:    coreutils
 Version: 9.5
-Release: 13%{?dist}
+Release: 14%{?dist}
 # some used parts of gnulib are under various variants of LGPL
 License: GPL-3.0-or-later AND GFDL-1.3-no-invariants-or-later AND LGPL-2.1-or-later AND LGPL-3.0-or-later
 Url:     https://www.gnu.org/software/coreutils/
@@ -75,6 +75,7 @@ Patch108: coreutils-CVE-2025-5278.patch
 # upstream commit: https://git.savannah.gnu.org/cgit/gnulib.git/commit/?id=41e7b7e0d159d8ac0eb385964119f350ac9dfc3f
 # upstream commit: https://git.savannah.gnu.org/cgit/gnulib.git/commit/?id=8a356b77717a2e4f735ec06e326880ca1f61aadb
 # upstream commit: https://git.savannah.gnu.org/cgit/gnulib.git/commit/?id=955360a66c99bdd9ac3688519a8b521b06958fd3
+# downstream fix for a bug in file_has_acl with dereferenced symlinks (RHEL-259194)
 Patch109: coreutils-9.5-cp-acl-preserve-mode.patch
 
 # CVE-2026-56391 - uniq: Denial of Service and information disclosure via out-of-bounds read with multibyte input
@@ -313,6 +314,9 @@ rm -f $RPM_BUILD_ROOT%{_infodir}/dir
 %license COPYING
 
 %changelog
+* Mon Sep 14 2026 Lukáš Zaoral <lzaoral@redhat.com> - 9.5-14
+- ls: fix incorrect ACL information for dereferenced symlinks (RHEL-259194)
+
 * Wed Jul 29 2026 Lukáš Zaoral <lzaoral@redhat.com> - 9.5-13
 - uniq: fix CVE-2026-56391 (RHEL-216790)
   - fix buffer overrun in multibyte locales

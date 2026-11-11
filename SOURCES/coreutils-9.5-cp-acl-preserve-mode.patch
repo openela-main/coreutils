@@ -1129,7 +1129,7 @@ index 898fb030..846c76ff 100644
          count = acl ((char *) name, ACL_GET, NACLENTRIES, entries);
  
          if (count < 0)
-@@ -675,10 +968,29 @@ file_has_acl (char const *name, struct stat const *sb)
+@@ -675,10 +968,33 @@ file_has_acl (char const *name, struct stat const *sb)
              return acl_nontrivial (count, entries);
            }
        }
@@ -1156,6 +1156,10 @@ index 898fb030..846c76ff 100644
 +  int flags = IFTODT (sb->st_mode);
 +  if (!S_ISDIR (sb->st_mode))
 +    flags |= _GL_DT_NOTDIR;
++  /* If we haven't executed stat on a symlink, always try to dereference name.
++     Otherwise, if name is a symlink, the output would be incorrect.  */
++  if (!S_ISLNK (sb->st_mode))
++    flags |= ACL_SYMLINK_FOLLOW;
 +  struct aclinfo ai;
 +  int r = file_has_aclinfo (name, &ai, flags);
 +  aclinfo_free (&ai);
