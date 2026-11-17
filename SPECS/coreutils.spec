@@ -1,7 +1,7 @@
 Summary: A set of basic GNU tools commonly used in shell scripts
 Name:    coreutils
 Version: 8.32
-Release: 41%{?dist}.1
+Release: 43%{?dist}
 License: GPLv3+
 Url:     https://www.gnu.org/software/coreutils/
 Source0: https://ftp.gnu.org/gnu/%{name}/%{name}-%{version}.tar.xz
@@ -87,6 +87,10 @@ Patch24: coreutils-8.32-s390x-fdlimit.patch
 # CVE-2025-5278 - Heap Buffer Under-Read in sort via Key Specification
 # upstream commit: https://cgit.git.savannah.gnu.org/cgit/coreutils.git/commit/?id=8c9602e3a145e9596dc1a63c6ed67865814b6633
 Patch25: coreutils-CVE-2025-5278.patch
+
+# df: fix bug with automounted arguments (RHEL-180583)
+# upstream commit: https://cgit.git.savannah.gnu.org/cgit/coreutils.git/commit/?id=a3c04f8da14f0fe2a0561bf5562032b8ce5dafa9
+Patch26: coreutils-8.32-df-fix-mishandled-automounts.patch
 
 # disable the test-lock gnulib test prone to deadlock
 Patch100: coreutils-8.26-test-lock.patch
@@ -337,14 +341,16 @@ rm -f $RPM_BUILD_ROOT%{_infodir}/dir
 %license COPYING
 
 %changelog
-* Tue Jul 28 2026 Lukáš Zaoral <lzaoral@redhat.com> - 8.32-41.1
-- unexpand: fix CVE-2026-56392 and related crashes (RHEL-216788)
-  - fix direct.sh and unexpand/mb.sh tests
-  - fix heap overflow with large tab stops
-  - fix heap overflow when a wide blank overshoots a tab stop
+* Wed Jun 10 2026 Lukáš Zaoral <lzaoral@redhat.com> - 8.32-43
+- unexpand: fix heap overflow when a wide blank overshoots a tab stop (RHEL-182506)
 
-* Mon Jun 01 2026 Lukáš Zaoral <lzaoral@redhat.com> - 8.32-41
-- CVE-2025-5278 - Fix Heap Buffer Under-Read in sort via Key Specification (RHEL-180331)
+* Fri Jun 05 2026 Lukáš Zaoral <lzaoral@redhat.com> - 8.32-42
+- CVE-2025-5278 - Fix Heap Buffer Under-Read in sort via Key Specification (RHEL-180332)
+- unexpand: fix stack overflow with large tabsizes (RHEL-182506)
+- df: fix bug with automounted arguments (RHEL-180583)
+
+* Sat Mar 21 2026 Lukáš Zaoral <lzaoral@redhat.com> - 8.32-41
+- fix df/direct.sh and unexpand/mb.sh tests (RHEL-151534)
 
 * Thu Jan 15 2026 Lukáš Zaoral <lzaoral@redhat.com> - 8.32-40
 - fold: fix processing of malformed UTF-8 sequences (RHEL-136086)
